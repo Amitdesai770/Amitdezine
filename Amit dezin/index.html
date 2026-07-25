@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amit Dezin — Product & UX Designer</title>
+  <meta name="description"
+    content="Product designer specializing in checkout and fintech systems. Grayscale showcase of design systems, checkout conversions, and real UX metrics.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'><rect width='32' height='32' rx='8' fill='%230a0a0a'/><text x='16' y='22' text-anchor='middle' font-family='system-ui' font-size='16' font-weight='600' fill='white'>AD</text></svg>">
+
+  <!-- CSS Styles -->
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <!-- CDN Scripts for Animation (GSAP, ScrollTrigger, Lenis) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js" defer></script>
+</head>
+
+<body>
+
+  <!-- Static Page-Length Edge Grid (Two vertical hairlines bounding content column) -->
+  <div class="edge-grid" aria-hidden="true">
+    <div class="grid-line left"></div>
+    <div class="grid-line right"></div>
+  </div>
+
+  <!-- 1. Header / Nav — Starts full-width at top; scrubs into a floating capsule -->
+  <nav class="nav-bar" id="main-nav" aria-label="Main Navigation">
+    <div class="nav-inner">
+      <a href="#hero" class="nav-avatar-block" aria-label="Back to top">
+        <!-- Initials only, no avatar SVG -->
+        <span class="nav-name">AD</span>
+      </a>
+
+      <!-- Desktop & Tablet Navigation Links -->
+      <div class="nav-links">
+        <div class="nav-link-wrap">
+          <a href="#work" class="nav-roll-link" data-text="Work">Work</a>
+        </div>
+        <div class="nav-link-wrap">
+          <a href="about/index.html" class="nav-roll-link" data-text="About">About</a>
+        </div>
+        <div class="nav-link-wrap">
+          <a href="#contact" class="nav-roll-link" data-text="Contact">Contact</a>
+        </div>
+        <div class="nav-link-wrap">
+          <a href="assets/docs/resume.pdf" target="_blank" rel="noopener" class="nav-roll-link" data-text="Resume">Resume</a>
+        </div>
+      </div>
+
+      <!-- Mobile Hamburger Toggle Button (outside nav — avoids stacking context trap) -->
+    </div>
+  </nav>
+
+  <button class="mobile-menu-btn" id="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-nav-overlay" aria-label="Toggle navigation menu">
+    <span class="hamburger-bar"></span>
+    <span class="hamburger-bar"></span>
+    <span class="hamburger-bar"></span>
+  </button>
+
+  <!-- Mobile Navigation Fullscreen Overlay Drawer -->
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Mobile Navigation Menu">
+    <div class="mobile-nav-content">
+      <a href="#work" class="mobile-nav-link">Work</a>
+      <a href="about/index.html" class="mobile-nav-link">About</a>
+      <a href="#contact" class="mobile-nav-link">Contact</a>
+      <a href="assets/docs/resume.pdf" target="_blank" rel="noopener" class="mobile-nav-link">Resume</a>
+    </div>
+  </div>
+
+  <main>
+    <!-- 2. Hero Section (Center-Aligned, 4px/8px spaced gaps) -->
+    <section class="hero-tile" id="hero">
+      <div class="hero-inner">
+        <!-- Two-Tone Headline (Center-aligned layout) -->
+        <h1 class="two-tone-hd hero-headline" id="hero-animated-headline">
+          <span class="line line-1">
+            <span class="word font-regular color-muted">Hi,</span>
+            <span class="word font-regular color-muted">I'm</span>
+            <span class="word font-regular color-muted">Amit.</span>
+          </span>
+          <span class="line line-2">
+            <span class="word font-regular color-muted">I</span>
+            <span class="word font-regular color-muted">blend</span>
+            <span class="word font-regular color-muted">my</span>
+            <span class="word font-regular color-muted">science</span>
+            <span class="word font-bold color-dark">roots</span>
+            <span class="word font-bold color-dark">with</span>
+            <span class="word font-bold color-dark">product</span>
+            <span class="word font-bold color-dark">design</span>
+            <span class="word font-bold color-dark">to</span>
+            <span class="word font-bold color-dark">make</span>
+          </span>
+          <span class="line line-3">
+            <span class="word font-bold color-dark">interfaces</span>
+            <span class="word font-bold color-dark">that</span>
+            <span class="word font-bold color-dark">just…</span>
+            <span class="word font-bold color-dark">make</span>
+            <span class="word font-bold color-dark">sense.</span>
+          </span>
+        </h1>
+
+
+        <!-- CTA Action (Center-aligned, View Work button with letter roll and no icon) -->
+        <div class="cta-row" data-animate="hero-fade">
+          <a href="#work" class="btn-primary btn-roll-link" id="view-work-cta" data-text="View Work">View Work</a>
+        </div>
+      </div>
+
+      <!-- Scroll cue down-arrow -->
+      <a href="#work" class="scroll-cue" aria-label="Scroll down to content" data-animate="hero-fade">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </a>
+    </section>
+
+    <!-- 3. Work Grid (2x2 Asymmetric, Center-Aligned Heading) -->
+    <section class="work-section" id="work">
+      <div class="grid-container">
+        <h2 class="two-tone-hd section-title">
+          <span class="font-bold color-dark">Selected work</span>
+        </h2>
+
+        <div class="projects-grid">
+
+          <!-- Card 1: HDFC Commercial Cards -->
+          <a href="work/hdfc-commercial-cards/index.html"
+            class="project-card project-card--redesign card--hdfc"
+            aria-label="HDFC Commercial Cards — View Case Study">
+            <!-- Category label (raw, no pill) -->
+            <span class="card-chip-top">Fintech, UX Audit</span>
+            <!-- Top info: title + subtitle -->
+            <div class="card-top">
+              <h3 class="card-heading">Rebuilding Commercial Cards</h3>
+              <p class="card-subhead">Around the one gap every bank missed: 24/7 support.</p>
+            </div>
+            <!-- Mockup: dashboard screenshot bleeds right/bottom -->
+            <div class="card-mockup-wrap">
+              <img class="card-mockup-img"
+                src="assets/images/dashboard.jpeg"
+                alt="HDFC Commercial Cards dashboard interface"
+                loading="lazy" width="800" height="600">
+            </div>
+            <!-- Progressive blur zone + horizontal bottom row -->
+            <div class="card-blur-zone">
+              <div class="card-bottom-row">
+                <p class="card-teaser">Every competitor had more features. None of them had support that worked at midnight.</p>
+                <span class="card-cta">View Project <span class="cta-arrow">↗</span></span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Card 2: Virgio Checkout Migration -->
+          <a href="work/virgio-checkout/index.html"
+            class="project-card project-card--redesign card--virgio"
+            aria-label="Virgio Checkout Migration — View Case Study">
+            <!-- Category label (raw, no pill) -->
+            <span class="card-chip-top">Conversion Optimization</span>
+            <!-- Top info: title + stats (no subhead — title says it all) -->
+            <div class="card-top">
+              <h3 class="card-heading">Moving checkout off Shopify</h3>
+              <div class="card-stats">
+                <div class="stat-pair">
+                  <span class="stat-num">+2.68%</span>
+                  <span class="stat-lbl">conversion</span>
+                </div>
+                <div class="stat-pair">
+                  <span class="stat-num">25.7%</span>
+                  <span class="stat-lbl">faster checkout</span>
+                </div>
+              </div>
+            </div>
+            <!-- Mockup: phone mockup group bleeds right/bottom -->
+            <div class="card-mockup-wrap">
+              <img class="card-mockup-img"
+                src="assets/images/main-hero-after-v.png"
+                alt="Virgio checkout flow on mobile screens"
+                loading="lazy" width="1000" height="900">
+            </div>
+            <!-- Progressive blur zone + horizontal bottom row -->
+            <div class="card-blur-zone">
+              <div class="card-bottom-row">
+                <p class="card-teaser">Every sale event pushed checkout past its limits — so we stopped depending on someone else's infrastructure.</p>
+                <span class="card-cta">View Project <span class="cta-arrow">↗</span></span>
+              </div>
+            </div>
+          </a>
+
+        </div>
+        <!-- Work footer removed — only 2 case studies exist -->
+
+      </div>
+    </section>
+
+
+
+
+    <!-- 5. Footer (Inverse black section, Center-Aligned) -->
+    <footer class="footer-tile" id="contact">
+      <div class="grid-container">
+
+        <!-- Header (Centered) -->
+        <h2 class="two-tone-hd section-title color-inverted">
+          <span class="font-regular color-muted-inverted">Lets create</span><br>
+          <span class="font-bold color-light">incredible work together.</span>
+        </h2>
+
+        <!-- Contact Links Group (Centered, phone removed) -->
+        <div class="footer-contact-row">
+          <div class="contact-element">
+            <span class="contact-label">Email</span>
+            <div class="email-wrapper" style="display: inline-flex; align-items: center; gap: 8px;">
+              <a href="mailto:itsdesaiamit@gmail.com" class="contact-value-link">itsdesaiamit@gmail.com</a>
+              <button class="copy-email-btn" aria-label="Copy email address" title="Copy email address" style="background: none; border: none; cursor: pointer; padding: 4px; display: inline-flex; align-items: center;">
+                <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </button>
+            </div>
+          </div>
+          <div class="contact-element socials">
+            <span class="contact-label">Socials</span>
+            <div class="social-links-wrapper">
+              <a href="https://www.instagram.com/ui.amitt?igsh=bGVjMGVrbmtnZ2di" target="_blank" rel="noopener" class="control-social-link">Instagram</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Copyright Line Info -->
+        <div class="footer-metadata-row">
+          <span class="metadata-location">Based in India</span>
+          <span class="metadata-copyright">© 2026 Amit Dezin</span>
+        </div>
+
+        <!-- Giant oversized wordmark exiting past the viewport edges (Linked to SVG liquid distorter) -->
+        <div class="giant-exit-wordmark-wrap">
+          <span class="giant-exit-wordmark" id="liquid-wordmark">Amit Dez<span class="wordmark-in"><span
+                class="char-i">i</span><span class="char-n">n</span></span></span>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- 6. Progressive Blur Strip at Bottom of Viewport -->
+  <div class="bottom-blur-strip" id="blur-strip" aria-hidden="true"></div>
+
+  <!-- SVG Liquid Distortion Filter (Used by script/GSAP on wordmark hover) -->
+  <svg class="svg-filters" style="position: absolute; width: 0; height: 0; pointer-events: none;"
+    xmlns="http://www.w3.org/2000/svg">
+    <filter id="displacementFilter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.0" numOctaves="2" result="noise" id="turbulence-node" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G"
+        id="displacement-map-node" />
+    </filter>
+  </svg>
+
+  <!-- Script File -->
+  <script src="assets/js/script.js" defer></script>
+</body>
+
+</html>

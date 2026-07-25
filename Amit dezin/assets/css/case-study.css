@@ -1,0 +1,972 @@
+/* ════════════════════════════════════════════════════
+   HDFC Case Study — Inherits global design tokens
+   All values snapped to 4/8px grid.
+   Grayscale only. No accent colors. No weight 500.
+   ════════════════════════════════════════════════════ */
+
+/* ── CSS Variables (mirrored from main style.css) ── */
+:root {
+    --color-ink: #0a0a0a;
+    --color-muted: #6e6e73;
+    --color-hairline: #e0e0e0;
+    --color-canvas: #f5f5f7;
+    --color-white: #ffffff;
+    --color-surface-dark: #1a1a1a;
+
+    --sp-xxs: 4px;
+    --sp-xs: 8px;
+    --sp-sm: 12px;
+    --sp-md: 17px;
+    --sp-lg: 24px;
+    --sp-xl: 32px;
+    --sp-xxl: 48px;
+    --sp-section: 80px;
+
+    --radius-pill: 9999px;
+    --radius-lg: 18px;
+    --radius-sm: 8px;
+
+    --font-display: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+}
+
+/* ── Reset & Base ── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-body);
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.47;
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+    background: var(--color-white);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── Edge Grid Hairlines ── */
+.edge-grid {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.grid-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.grid-line.left {
+    left: 48px;
+}
+
+.grid-line.right {
+    right: 48px;
+}
+
+/* ── Navigation Bar ── */
+.nav-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1005;
+    height: 52px;
+    padding: 0 var(--sp-xl);
+    display: flex;
+    align-items: center;
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    background: rgba(255, 255, 255, 0.72);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.nav-inner {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-logo {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.nav-back {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--color-muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.nav-back:hover {
+    color: var(--color-ink);
+}
+
+/* ── Page Wrapper & Reading Column ── */
+.page-wrapper {
+    padding-top: 52px;
+    /* nav height */
+}
+
+.content-lock {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 var(--sp-xl);
+}
+
+/* Reading column — 680–760px centered */
+.reading-col {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+/* Wide column — for tables, lets them breathe */
+.wide-col {
+    max-width: 100%;
+}
+
+/* ── Case Study Header ── */
+.cs-header {
+    padding: var(--sp-xxl) 0 var(--sp-section);
+    border-bottom: 1px solid var(--color-hairline);
+    margin-bottom: var(--sp-section);
+}
+
+.cs-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--color-muted);
+    text-decoration: none;
+    margin-bottom: var(--sp-xl);
+    transition: color 0.2s ease;
+}
+
+.cs-back-link:hover {
+    color: var(--color-ink);
+}
+
+.cs-title {
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    color: var(--color-ink);
+    margin-bottom: var(--sp-lg);
+}
+
+.cs-title .line-muted {
+    display: block;
+    font-weight: 300;
+    color: var(--color-muted);
+}
+
+.cs-meta {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--color-muted);
+    letter-spacing: -0.01em;
+}
+
+/* ── Section Wrapper ── */
+.cs-section {
+    padding: var(--sp-section) 0;
+    border-bottom: 1px solid var(--color-hairline);
+}
+
+.cs-section:last-child {
+    border-bottom: none;
+}
+
+/* ── Two-Tone Section Heading ── */
+.two-tone-hd {
+    font-size: clamp(28px, 3.5vw, 40px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: var(--sp-xl);
+}
+
+.two-tone-hd .line-muted {
+    display: block;
+    font-weight: 300;
+    color: var(--color-muted);
+}
+
+.two-tone-hd .line-bold {
+    display: block;
+    font-weight: 700;
+    color: var(--color-ink);
+}
+
+/* ── Body Text ── */
+p {
+    margin-bottom: var(--sp-lg);
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--color-ink);
+}
+
+p:last-child {
+    margin-bottom: 0;
+}
+
+strong {
+    font-weight: 700;
+}
+
+/* ── Blockquote ── */
+.cs-blockquote {
+    border-left: 3px solid var(--color-hairline);
+    padding: var(--sp-sm) 0 var(--sp-sm) var(--sp-xl);
+    margin: var(--sp-xl) 0;
+    color: var(--color-ink);
+    font-style: italic;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.6;
+}
+
+/* ── Bullet Lists ── */
+.cs-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--sp-lg) 0;
+}
+
+.cs-list li {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: var(--sp-sm);
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--color-ink);
+}
+
+.cs-list li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: var(--color-muted);
+    font-weight: 400;
+}
+
+/* ── Subsection Label ── */
+.sub-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: var(--sp-sm);
+}
+
+/* ── Image Placeholder ── */
+.img-placeholder {
+    border: 1.5px dashed var(--color-hairline);
+    border-radius: var(--radius-sm);
+    aspect-ratio: 16 / 9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--sp-xl);
+    margin: var(--sp-xl) 0 var(--sp-sm) 0;
+    background: #fafafa;
+    text-align: center;
+    gap: var(--sp-xs);
+}
+
+.img-placeholder-icon {
+    opacity: 0.25;
+    font-size: 32px;
+    margin-bottom: var(--sp-xs);
+}
+
+.img-placeholder-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-muted);
+    letter-spacing: 0;
+}
+
+.img-placeholder+.img-caption {
+    font-size: 13px;
+    color: var(--color-muted);
+    font-style: italic;
+    text-align: center;
+    margin-top: var(--sp-xxs);
+    margin-bottom: var(--sp-xl);
+}
+
+/* ── Competitor Table ── */
+.table-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-xs);
+    margin-bottom: var(--sp-lg);
+}
+
+.filter-pill {
+    padding: 6px 16px;
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0;
+    border: 1.5px solid var(--color-hairline);
+    background: var(--color-white);
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.filter-pill.active,
+.filter-pill:hover {
+    background: var(--color-ink);
+    color: var(--color-white);
+    border-color: var(--color-ink);
+}
+
+.cs-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--sp-section);
+}
+
+.cs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    min-width: 640px;
+}
+
+.cs-table thead th {
+    padding: 14px var(--sp-lg);
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    background: #f9f9f9;
+    border-bottom: 1px solid var(--color-hairline);
+}
+
+.cs-table tbody tr {
+    border-bottom: 1px solid var(--color-hairline);
+    transition: background 0.1s ease;
+}
+
+.cs-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.cs-table tbody tr:hover {
+    background: rgba(0, 0, 0, 0.015);
+}
+
+.cs-table tbody td {
+    padding: 14px var(--sp-lg);
+    vertical-align: top;
+    line-height: 1.55;
+    color: var(--color-ink);
+}
+
+.cs-table tbody td:first-child {
+    font-weight: 600;
+    min-width: 160px;
+}
+
+/* Hidden rows when filtered */
+.cs-table tbody tr.hidden {
+    display: none;
+}
+
+/* Segment Pills */
+.seg-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+.seg-pill.common {
+    background: var(--color-surface-dark);
+    color: var(--color-white);
+}
+
+.seg-pill.b2b {
+    border: 1.5px solid var(--color-ink);
+    color: var(--color-ink);
+    background: transparent;
+}
+
+.seg-pill.b2c {
+    border: 1.5px solid var(--color-muted);
+    color: var(--color-muted);
+    background: transparent;
+}
+
+/* ── Mobile Card Stack (< 640px) ── */
+@media (max-width: 639px) {
+    .cs-table-wrap {
+        overflow: visible;
+        border: none;
+        border-radius: 0;
+    }
+
+    .cs-table {
+        display: none;
+    }
+
+    .mobile-table-cards {
+        display: flex;
+        flex-direction: column;
+        gap: var(--sp-sm);
+    }
+
+    .mobile-card {
+        border: 1px solid var(--color-hairline);
+        border-radius: var(--radius-sm);
+        padding: var(--sp-lg);
+        background: var(--color-white);
+    }
+
+    .mobile-card.hidden {
+        display: none;
+    }
+
+    .mobile-card-feature {
+        font-size: 15px;
+        font-weight: 700;
+        margin-bottom: var(--sp-xs);
+        color: var(--color-ink);
+    }
+
+    .mobile-card-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: var(--sp-xs);
+    }
+
+    .mobile-card-brand {
+        font-size: 13px;
+        color: var(--color-muted);
+        font-weight: 400;
+    }
+
+    .mobile-card-desc {
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--color-ink);
+    }
+}
+
+@media (min-width: 640px) {
+    .mobile-table-cards {
+        display: none;
+    }
+}
+
+/* ── Findings Final Insights Cards ── */
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--sp-lg);
+    margin-top: var(--sp-xl);
+}
+
+.insight-card {
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-sm);
+    padding: var(--sp-xl);
+}
+
+.insight-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin-bottom: var(--sp-xs);
+}
+
+.insight-card-body {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--color-muted);
+}
+
+/* ── Sitemap Two-Column Grid ── */
+.sitemap-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-lg) var(--sp-xxl);
+    margin-top: var(--sp-lg);
+}
+
+.sitemap-item-label {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin-bottom: var(--sp-xxs);
+}
+
+.sitemap-item-desc {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--color-muted);
+}
+
+@media (max-width: 640px) {
+    .sitemap-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── Ideation Sub-Groups ── */
+.ideation-group {
+    margin-bottom: var(--sp-xl);
+}
+
+.ideation-group-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin-bottom: var(--sp-sm);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ── Simple Table (Pain Points, no filter) ── */
+.simple-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-sm);
+    margin: var(--sp-xl) 0;
+}
+
+.simple-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    min-width: 480px;
+}
+
+.simple-table thead th {
+    padding: 12px var(--sp-lg);
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    background: #f9f9f9;
+    border-bottom: 1px solid var(--color-hairline);
+}
+
+.simple-table tbody tr {
+    border-bottom: 1px solid var(--color-hairline);
+}
+
+.simple-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.simple-table tbody td {
+    padding: 12px var(--sp-lg);
+    vertical-align: top;
+    line-height: 1.55;
+    color: var(--color-ink);
+}
+
+.simple-table tbody td:first-child {
+    font-weight: 600;
+}
+
+/* ── Footer ── */
+.cs-footer {
+    background: var(--color-ink);
+    color: var(--color-white);
+    padding: var(--sp-xxl) var(--sp-xl);
+    text-align: center;
+}
+
+.cs-footer a {
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.cs-footer a:hover {
+    color: var(--color-white);
+}
+
+/* ── Responsive Spacing ── */
+@media (max-width: 768px) {
+    .grid-line.left {
+        left: 16px;
+    }
+
+    .grid-line.right {
+        right: 16px;
+    }
+
+    .content-lock {
+        padding: 0 var(--sp-lg);
+    }
+
+    .cs-section {
+        padding: var(--sp-xxl) 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-bar {
+        padding: 0 var(--sp-md);
+    }
+}
+
+/* ── Interactive Diagram Canvas Viewer ── */
+.diagram-card-container {
+    position: relative;
+    width: 100%;
+    margin-top: var(--sp-xl);
+}
+
+.diagram-canvas-card {
+    position: relative;
+    width: 100%;
+    border-radius: var(--radius-sm);
+    background: #ebe8f2;
+    /* Soft desaturated lavender canvas tint */
+    border: 1px solid var(--color-hairline);
+    overflow: hidden;
+    touch-action: none;
+    /* Crucial for mobile swipe/pinch gestures without scrolling */
+}
+
+/* Specific aspect ratios for viewers */
+#sitemap-viewer .diagram-canvas-card {
+    aspect-ratio: 21 / 10;
+}
+
+#ia-viewer .diagram-canvas-card {
+    aspect-ratio: 16 / 9;
+}
+
+@media (max-width: 768px) {
+
+    #sitemap-viewer .diagram-canvas-card,
+    #ia-viewer .diagram-canvas-card {
+        height: 380px;
+        aspect-ratio: auto;
+    }
+}
+
+/* Viewport elements */
+.diagram-canvas-viewport {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.diagram-zoom-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+}
+
+.diagram-zoom-wrapper:active {
+    cursor: grabbing;
+}
+
+.diagram-zoom-wrapper img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
+    pointer-events: none;
+}
+
+/* UI Controls in Canvas */
+.diagram-pill-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-white);
+    color: var(--color-ink);
+    border: 1.5px solid var(--color-hairline);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    /* No 500 */
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.diagram-pill-btn:hover {
+    background: var(--color-canvas);
+    border-color: var(--color-ink);
+}
+
+.diagram-expand-btn {
+    position: absolute;
+    top: var(--sp-sm);
+    right: var(--sp-sm);
+    z-index: 10;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+}
+
+.diagram-expand-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+/* Dropdown Switcher (styled select) */
+.diagram-dropdown-wrap {
+    position: absolute;
+    top: var(--sp-sm);
+    left: var(--sp-sm);
+    z-index: 10;
+}
+
+.diagram-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--color-white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='%230a0a0a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 12px center;
+    background-size: 14px;
+    border: 1.5px solid var(--color-hairline);
+    border-radius: var(--radius-sm);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    /* No 500 */
+    padding: 8px 36px 8px 16px;
+    cursor: pointer;
+    outline: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    min-width: 180px;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.diagram-select:hover {
+    border-color: var(--color-ink);
+    background-color: var(--color-canvas);
+}
+
+/* Zoom controls stack */
+.diagram-zoom-controls {
+    position: absolute;
+    bottom: var(--sp-sm);
+    right: var(--sp-sm);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-white);
+    border: 1.5px solid var(--color-hairline);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.diagram-zoom-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: var(--color-ink);
+    font-size: 18px;
+    font-weight: 400;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease;
+}
+
+.diagram-zoom-btn:hover {
+    background: var(--color-canvas);
+}
+
+.diagram-zoom-btn:first-child {
+    border-bottom: 1.5px solid var(--color-hairline);
+}
+
+/* Caption bar styling */
+.diagram-caption-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 12px;
+    margin-bottom: var(--sp-xl);
+    padding: 0 4px;
+}
+
+.diagram-caption-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--color-ink);
+    font-weight: 400;
+    /* No 500 */
+}
+
+.diagram-caption-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.75;
+}
+
+.diagram-caption-icon svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+    fill: none;
+}
+
+.diagram-caption-right {
+    font-size: 13px;
+    color: var(--color-muted);
+    font-weight: 400;
+    /* No 500 */
+}
+
+/* ── Fullscreen Overlay Mode ── */
+.diagram-fullscreen-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #ebe8f2;
+    /* Soft desaturated lavender tint, full bleed */
+    z-index: 2100;
+    /* Above navbar (1005) and other components */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    touch-action: none;
+}
+
+.diagram-fullscreen-overlay.hidden {
+    display: none !important;
+}
+
+/* Fullscreen close/back button */
+.diagram-fullscreen-close {
+    position: absolute;
+    top: var(--sp-lg);
+    left: var(--sp-lg);
+    z-index: 10;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-xs);
+    background: var(--color-white);
+    color: var(--color-ink);
+    border: 1.5px solid var(--color-ink);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    /* No 500 */
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    transition: background 0.15s ease;
+}
+
+.diagram-fullscreen-close:hover {
+    background: var(--color-canvas);
+}
+
+.diagram-fullscreen-close svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Overwrite viewport inside fullscreen overlay */
+.diagram-fullscreen-overlay .diagram-canvas-viewport {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+.diagram-fullscreen-overlay .diagram-zoom-wrapper img {
+    max-width: 95%;
+    max-height: 95%;
+}
+
+.diagram-fullscreen-overlay .diagram-dropdown-wrap {
+    top: var(--sp-lg);
+    left: 140px;
+    /* Offset to clear close button */
+}
+
+body.diagram-scroll-locked {
+    overflow: hidden !important;
+}
+
+@media (max-width: 640px) {
+    .edge-grid {
+        display: none !important;
+    }
+}

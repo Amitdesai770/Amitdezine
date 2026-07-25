@@ -1,0 +1,3038 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDFC Commercial Cards — Case Study · Amit Dezin</title>
+    <meta name="description"
+        content="How I reimagined support, trust, and control for HDFC's corporate banking portal — a UX case study by Amit Dezin.">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'><rect width='32' height='32' rx='8' fill='%230a0a0a'/><text x='16' y='22' text-anchor='middle' font-family='system-ui' font-size='16' font-weight='600' fill='white'>AD</text></svg>">
+
+    <style>
+        :root {
+            --color-ink: #0a0a0a;
+            --color-muted: #6e6e73;
+            --color-hairline: #e0e0e0;
+            --color-canvas: #f5f5f7;
+            --color-white: #ffffff;
+            --color-surface-dark: #1a1a1a;
+            --sp-xxs: 4px;
+            --sp-xs: 8px;
+            --sp-sm: 12px;
+            --sp-md: clamp(14px, 0.2vw + 15px, 16px);
+            --sp-lg: clamp(16px, 0.8vw + 12px, 24px);
+            --sp-xl: clamp(20px, 1.2vw + 15px, 32px);
+            --sp-xxl: clamp(24px, 2.4vw + 14px, 48px);
+            --sp-section: clamp(40px, 4vw + 24px, 80px);
+            --radius-pill: 9999px;
+            --radius-lg: 18px;
+            --radius-sm: 8px;
+            --font-body: -apple-system, BlinkMacSystemFont, "Inter", sans-serif
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-size: clamp(15px, 0.2vw + 14px, 17px);
+            font-weight: 400;
+            line-height: 1.47;
+            letter-spacing: -0.01em;
+            color: var(--color-ink);
+            background: var(--color-white);
+            -webkit-font-smoothing: antialiased
+        }
+
+        .edge-grid {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0
+        }
+
+        .grid-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(0, 0, 0, 0.06)
+        }
+
+        .grid-line.left {
+            left: 48px
+        }
+
+        .grid-line.right {
+            right: 48px
+        }
+
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1005;
+            height: 52px;
+            padding: 0 var(--sp-xl);
+            display: flex;
+            align-items: center;
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            background: rgba(255, 255, 255, 0.72);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06)
+        }
+
+        .nav-inner {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .nav-logo {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--color-ink);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            min-height: 44px;
+            padding: 0 10px;
+            flex-shrink: 0;
+        }
+
+        .nav-back {
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--color-muted);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s ease;
+            min-height: 44px;
+            padding: 0 10px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .nav-back:hover {
+            color: var(--color-ink)
+        }
+
+        .page-wrapper {
+            padding-top: 52px
+        }
+
+        .content-lock {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 0 var(--sp-xl)
+        }
+
+        .reading-col {
+            max-width: 65ch;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .wide-col {
+            max-width: 100%
+        }
+
+        .cs-header {
+            padding: var(--sp-xxl) 0 48px;
+            border-bottom: 1px solid var(--color-hairline);
+            margin-bottom: 52px
+        }
+
+        .cs-back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--color-muted);
+            text-decoration: none;
+            margin-bottom: var(--sp-xl);
+            transition: color 0.2s ease
+        }
+
+        .cs-back-link:hover {
+            color: var(--color-ink)
+        }
+
+        .cs-title {
+            font-size: clamp(32px, 5vw, 52px);
+            font-weight: 700;
+            line-height: 1.08;
+            letter-spacing: -0.03em;
+            color: var(--color-ink);
+            margin-bottom: var(--sp-lg)
+        }
+
+        .cs-title .line-muted {
+            display: block;
+            font-weight: 300;
+            color: var(--color-muted)
+        }
+
+        .cs-meta {
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--color-muted);
+            letter-spacing: -0.01em
+        }
+
+        .cs-section {
+            padding: 52px 0;
+            border-bottom: 1px solid var(--color-hairline)
+        }
+
+        .cs-section:last-child {
+            border-bottom: none
+        }
+
+        .cs-intro-line {
+            font-size: clamp(22px, 2.2vw + 14px, 32px);
+            font-weight: 300;
+            line-height: 1.35;
+            color: var(--color-muted);
+            letter-spacing: -0.015em;
+            margin-bottom: var(--sp-xl);
+            margin-top: 4px
+        }
+
+        @media (max-width: 768px) {
+            .cs-intro-line {
+                font-size: 22px;
+                line-height: 1.38;
+                letter-spacing: -0.01em;
+                margin-bottom: var(--sp-md);
+            }
+        }
+
+        .two-tone-hd {
+            font-size: clamp(28px, 3.5vw, 40px);
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: var(--sp-xl)
+        }
+
+        .two-tone-hd .line-muted {
+            display: block;
+            font-weight: 300;
+            color: var(--color-muted)
+        }
+
+        .two-tone-hd .line-bold {
+            display: block;
+            font-weight: 700;
+            color: var(--color-ink)
+        }
+
+        p {
+            margin-bottom: var(--sp-lg);
+            font-size: clamp(15px, 0.2vw + 14px, 17px);
+            font-weight: 400;
+            line-height: 1.6;
+            color: var(--color-ink)
+        }
+
+        p:last-child {
+            margin-bottom: 0
+        }
+
+        strong {
+            font-weight: 700
+        }
+
+        em {
+            font-style: italic
+        }
+
+        .cs-blockquote {
+            border-left: 3px solid var(--color-hairline);
+            padding: var(--sp-sm) 0 var(--sp-sm) var(--sp-xl);
+            margin: var(--sp-xl) 0;
+            color: var(--color-ink);
+            font-style: normal;
+            font-size: clamp(15px, 0.2vw + 14px, 17px);
+            font-weight: 400;
+            line-height: 1.6
+        }
+
+        .cs-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 var(--sp-lg) 0
+        }
+
+        .cs-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: var(--sp-sm);
+            font-size: clamp(15px, 0.2vw + 14px, 17px);
+            line-height: 1.6;
+            color: var(--color-ink)
+        }
+
+        .cs-list li::before {
+            content: "—";
+            position: absolute;
+            left: 0;
+            color: var(--color-muted);
+            font-weight: 400
+        }
+
+        .sub-label {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--color-muted);
+            margin-bottom: var(--sp-sm)
+        }
+
+        .img-placeholder {
+            border: 1.5px dashed var(--color-hairline);
+            border-radius: var(--radius-sm);
+            aspect-ratio: 16/9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--sp-xl);
+            margin: var(--sp-xl) 0 var(--sp-sm) 0;
+            background: #fafafa;
+            text-align: center;
+            gap: var(--sp-xs)
+        }
+
+        .cs-img-wrap {
+            margin: var(--sp-xl) 0 var(--sp-sm) 0;
+            border: 1px solid var(--color-hairline);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            background: #fafafa;
+        }
+
+        .cs-img-wrap img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .cs-hero-img-wrap {
+            margin-bottom: var(--sp-xl);
+            border: 1px solid var(--color-hairline);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            background: #fafafa;
+        }
+
+        .cs-hero-img-wrap img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .img-placeholder-icon {
+            opacity: 0.25;
+            font-size: 32px;
+            margin-bottom: var(--sp-xs)
+        }
+
+        .img-placeholder-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-muted);
+            letter-spacing: 0
+        }
+
+        .img-placeholder+.img-caption {
+            font-size: 13px;
+            color: var(--color-muted);
+            font-style: italic;
+            text-align: center;
+            margin-top: var(--sp-xxs);
+            margin-bottom: var(--sp-xl)
+        }
+
+        .table-filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--sp-xs);
+            margin-bottom: var(--sp-lg)
+        }
+
+        .filter-pill {
+            padding: 12px 20px;
+            min-height: 44px;
+            border-radius: var(--radius-pill);
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0;
+            border: 1.5px solid var(--color-hairline);
+            background: var(--color-white);
+            color: var(--color-muted);
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease
+        }
+
+        .filter-pill.active,
+        .filter-pill:hover {
+            background: var(--color-ink);
+            color: var(--color-white);
+            border-color: var(--color-ink)
+        }
+
+        .cs-table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--color-hairline);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--sp-section)
+        }
+
+        .cs-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 640px
+        }
+
+        .cs-table thead th {
+            padding: 14px var(--sp-lg);
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: var(--color-muted);
+            background: #f9f9f9;
+            border-bottom: 1px solid var(--color-hairline)
+        }
+
+        .cs-table tbody tr {
+            border-bottom: 1px solid var(--color-hairline);
+            transition: background 0.1s ease
+        }
+
+        .cs-table tbody tr:last-child {
+            border-bottom: none
+        }
+
+        .cs-table tbody tr:hover {
+            background: rgba(0, 0, 0, 0.015)
+        }
+
+        .cs-table tbody td {
+            padding: 14px var(--sp-lg);
+            vertical-align: top;
+            line-height: 1.55;
+            color: var(--color-ink)
+        }
+
+        .cs-table tbody td:first-child {
+            font-weight: 600;
+            min-width: 160px
+        }
+
+        .cs-table tbody tr.hidden {
+            display: none
+        }
+
+        .seg-pill {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: var(--radius-pill);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            white-space: nowrap
+        }
+
+        .seg-pill.common {
+            background: var(--color-surface-dark);
+            color: var(--color-white)
+        }
+
+        .seg-pill.b2b {
+            border: 1.5px solid var(--color-ink);
+            color: var(--color-ink);
+            background: transparent
+        }
+
+        .seg-pill.b2c {
+            border: 1.5px solid var(--color-muted);
+            color: var(--color-muted);
+            background: transparent
+        }
+
+        @media(max-width:768px) {
+            .cs-table-wrap {
+                overflow: visible;
+                border: none;
+                border-radius: 0
+            }
+
+            .cs-table {
+                display: none
+            }
+
+            .mobile-table-cards {
+                display: flex;
+                flex-direction: column;
+                gap: var(--sp-sm)
+            }
+
+            .mobile-card {
+                border: 1px solid var(--color-hairline);
+                border-radius: var(--radius-sm);
+                padding: var(--sp-lg);
+                background: var(--color-white)
+            }
+
+            .mobile-card.hidden {
+                display: none
+            }
+
+            .mobile-card-feature {
+                font-size: 15px;
+                font-weight: 700;
+                margin-bottom: var(--sp-xs);
+                color: var(--color-ink)
+            }
+
+            .mobile-card-meta {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: var(--sp-xs)
+            }
+
+            .mobile-card-brand {
+                font-size: 13px;
+                color: var(--color-muted);
+                font-weight: 400
+            }
+
+            .mobile-card-desc {
+                font-size: 14px;
+                line-height: 1.55;
+                color: var(--color-ink)
+            }
+        }
+
+        @media(min-width:640px) {
+            .mobile-table-cards {
+                display: none
+            }
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: var(--sp-lg);
+            margin-top: var(--sp-xl)
+        }
+
+        .insight-card {
+            border: 1px solid var(--color-hairline);
+            border-radius: var(--radius-sm);
+            padding: var(--sp-xl)
+        }
+
+        .insight-card-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--color-ink);
+            margin-bottom: var(--sp-xs)
+        }
+
+        .insight-card-body {
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--color-muted)
+        }
+
+        .sitemap-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--sp-lg) var(--sp-xxl);
+            margin-top: var(--sp-lg)
+        }
+
+        .sitemap-item-label {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--color-ink);
+            margin-bottom: var(--sp-xxs)
+        }
+
+        .sitemap-item-desc {
+            font-size: 14px;
+            line-height: 1.55;
+            color: var(--color-muted)
+        }
+
+        @media(max-width:640px) {
+            .sitemap-grid {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .ideation-group {
+            margin-bottom: var(--sp-xl)
+        }
+
+        .ideation-group-title {
+            font-size: clamp(15px, 0.2vw + 14px, 17px);
+            font-weight: 700;
+            color: var(--color-ink);
+            margin-bottom: var(--sp-sm);
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .simple-table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--color-hairline);
+            border-radius: var(--radius-sm);
+            margin: var(--sp-xl) 0
+        }
+
+        .simple-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 480px
+        }
+
+        .simple-table thead th {
+            padding: 12px var(--sp-lg);
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: var(--color-muted);
+            background: #f9f9f9;
+            border-bottom: 1px solid var(--color-hairline)
+        }
+
+        .simple-table tbody tr {
+            border-bottom: 1px solid var(--color-hairline)
+        }
+
+        .simple-table tbody tr:last-child {
+            border-bottom: none
+        }
+
+        .simple-table tbody td {
+            padding: 12px var(--sp-lg);
+            vertical-align: top;
+            line-height: 1.55;
+            color: var(--color-ink)
+        }
+
+        .simple-table tbody td:first-child {
+            font-weight: 600
+        }
+
+        .cs-footer {
+            background: var(--color-ink);
+            color: var(--color-white);
+            padding: var(--sp-xxl) var(--sp-xl);
+            text-align: center
+        }
+
+        .cs-footer a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 14px
+        }
+
+        .cs-footer a:hover {
+            color: var(--color-white)
+        }
+
+        @media(max-width:768px) {
+            .grid-line.left {
+                left: 16px
+            }
+
+            .grid-line.right {
+                right: 16px
+            }
+
+            .content-lock {
+                padding: 0 var(--sp-lg)
+            }
+
+        }
+
+        /* Personas Grid */
+        .personas-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--sp-xl);
+            margin-top: var(--sp-xl);
+            margin-bottom: var(--sp-xl);
+        }
+
+        .persona-card {
+            border: 1px solid var(--color-hairline);
+            border-radius: var(--radius-sm);
+            padding: var(--sp-xl);
+            background: var(--color-white);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .persona-card h3 {
+            font-size: 19px;
+            font-weight: 700;
+            line-height: 1.25;
+            margin-bottom: var(--sp-xs);
+            color: var(--color-ink);
+        }
+
+        .persona-tag {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--color-muted);
+            margin-bottom: var(--sp-md);
+        }
+
+        .persona-bio {
+            font-size: 15px;
+            line-height: 1.55;
+            color: var(--color-ink);
+            margin-bottom: var(--sp-lg);
+        }
+
+        .persona-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-muted);
+            margin-top: var(--sp-md);
+            margin-bottom: var(--sp-xs);
+        }
+
+        .persona-card .cs-list {
+            margin-bottom: var(--sp-md);
+        }
+
+        .persona-card .cs-list li {
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: var(--sp-xs);
+        }
+
+        .persona-card .cs-blockquote {
+            margin: var(--sp-lg) 0 0 0;
+            padding: var(--sp-xs) 0 var(--sp-xs) var(--sp-md);
+            font-size: 15px;
+        }
+
+        /* Findings Card Grid */
+        .findings-card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--sp-md);
+            margin-top: var(--sp-xl);
+            margin-bottom: var(--sp-xl);
+        }
+
+        .findings-card {
+            border: 1px solid var(--color-hairline);
+            border-radius: var(--radius-sm);
+            padding: var(--sp-lg);
+            background: var(--color-white);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .findings-card-num {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-muted);
+            margin-bottom: var(--sp-xs);
+        }
+
+        .findings-card-title {
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.25;
+            margin-bottom: var(--sp-xs);
+            color: var(--color-ink);
+        }
+
+        .findings-card-desc {
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--color-muted);
+            margin-bottom: 0;
+        }
+
+        /* Final Insights */
+        .insights-intro-line {
+            font-size: 19px;
+            line-height: 1.45;
+            color: var(--color-ink);
+            margin-bottom: var(--sp-xl);
+        }
+
+        .insights-section-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--sp-lg);
+            margin-top: var(--sp-xl);
+        }
+
+        .insight-conclusion-card {
+            border: 1px solid var(--color-hairline);
+            border-radius: var(--radius-sm);
+            padding: var(--sp-xl);
+            background: var(--color-canvas);
+            border-top: 3px solid var(--color-ink);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .insight-conclusion-card h3 {
+            font-size: clamp(15px, 0.2vw + 14px, 17px);
+            font-weight: 700;
+            margin-bottom: var(--sp-sm);
+            color: var(--color-ink);
+        }
+
+        .insight-conclusion-card p {
+            font-size: 15px;
+            line-height: 1.55;
+            color: var(--color-muted);
+            margin-bottom: 0;
+        }
+
+        /* Progressive Disclosure Button */
+        .disclosure-btn-wrap {
+            display: flex;
+            justify-content: center;
+            margin-top: var(--sp-lg);
+        }
+
+        .disclosure-btn {
+            padding: 10px 24px;
+            border-radius: var(--radius-pill);
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0;
+            border: 1.5px solid var(--color-ink);
+            background: var(--color-white);
+            color: var(--color-ink);
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .disclosure-btn:hover {
+            background: var(--color-ink);
+            color: var(--color-white);
+        }
+
+        @media(max-width: 768px) {
+            .desktop-disclosure-only {
+                display: none !important;
+            }
+        }
+
+        @media(min-width: 769px) {
+            .mobile-disclosure-only {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 900px) {
+
+            .findings-card-grid,
+            .insights-section-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .personas-grid {
+                grid-template-columns: 1fr;
+                gap: var(--sp-lg);
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .findings-card-grid,
+            .insights-section-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-bar {
+                padding: 0 var(--sp-md);
+            }
+        }
+
+        /* ── Bucketing Exercise Tables ── */
+        .bucket-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--sp-xl) var(--sp-lg);
+            margin-top: var(--sp-xl);
+            width: 100%;
+        }
+
+        .bucket-grid-full {
+            grid-column: 1 / -1;
+        }
+
+        .bucket-category-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: var(--sp-sm);
+            color: var(--color-ink);
+        }
+
+        @media (max-width: 768px) {
+            .bucket-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .bucket-grid-full {
+                grid-column: auto;
+            }
+        }
+
+        /* ── Interactive Diagram Canvas Viewer ── */
+        .diagram-card-container {
+            position: relative;
+            width: 100%;
+            margin-top: var(--sp-xl);
+        }
+
+        .diagram-canvas-card {
+            position: relative;
+            width: 100%;
+            border-radius: var(--radius-sm);
+            background: #ebe8f2;
+            /* Soft desaturated lavender canvas tint */
+            border: 1px solid var(--color-hairline);
+            overflow: hidden;
+            touch-action: none;
+            /* Crucial for mobile swipe/pinch gestures without scrolling */
+        }
+
+        /* Aspect ratio for the unified viewer */
+        #diagram-viewer .diagram-canvas-card {
+            aspect-ratio: 16 / 9;
+        }
+
+        @media (max-width: 768px) {
+
+            #diagram-viewer .diagram-canvas-card {
+                height: 380px;
+                aspect-ratio: auto;
+            }
+        }
+
+        /* Viewport elements */
+        .diagram-canvas-viewport {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .diagram-zoom-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+
+        .diagram-zoom-wrapper:active {
+            cursor: grabbing;
+        }
+
+        .diagram-zoom-wrapper img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            user-select: none;
+            -webkit-user-drag: none;
+            pointer-events: none;
+        }
+
+        /* UI Controls in Canvas */
+        .diagram-pill-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--color-white);
+            color: var(--color-ink);
+            border: 1.5px solid var(--color-hairline);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: var(--font-body);
+            font-size: 14px;
+            font-weight: 600;
+            /* No 500 */
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .diagram-pill-btn:hover {
+            background: var(--color-canvas);
+            border-color: var(--color-ink);
+        }
+
+        .diagram-expand-btn {
+            position: absolute;
+            top: var(--sp-sm);
+            right: var(--sp-sm);
+            z-index: 10;
+            width: 36px;
+            height: 36px;
+            padding: 0;
+        }
+
+        .diagram-expand-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        /* Tab pill switcher */
+        .diagram-tab-wrap {
+            position: absolute;
+            top: var(--sp-sm);
+            left: var(--sp-sm);
+            z-index: 10;
+            display: flex;
+            gap: 4px;
+        }
+
+        .diagram-tab-btn {
+            appearance: none;
+            border: 1.5px solid var(--color-hairline);
+            border-radius: var(--radius-sm);
+            background: var(--color-white);
+            color: var(--color-ink);
+            font-family: var(--font-body);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 14px;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .diagram-tab-btn:hover {
+            background: var(--color-canvas);
+            border-color: var(--color-ink);
+        }
+
+        .diagram-tab-btn.active {
+            background: var(--color-ink);
+            border-color: var(--color-ink);
+            color: var(--color-white);
+        }
+
+        /* Zoom controls stack */
+        .diagram-zoom-controls {
+            position: absolute;
+            bottom: var(--sp-sm);
+            right: var(--sp-sm);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            background: var(--color-white);
+            border: 1.5px solid var(--color-hairline);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .diagram-zoom-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            color: var(--color-ink);
+            font-size: 18px;
+            font-weight: 400;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s ease;
+        }
+
+        .diagram-zoom-btn:hover {
+            background: var(--color-canvas);
+        }
+
+        .diagram-zoom-btn:first-child {
+            border-bottom: 1.5px solid var(--color-hairline);
+        }
+
+        /* Caption bar styling */
+        .diagram-caption-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-top: 12px;
+            margin-bottom: var(--sp-xl);
+            padding: 0 4px;
+        }
+
+        .diagram-caption-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--color-ink);
+            font-weight: 400;
+            /* No 500 */
+        }
+
+        .diagram-caption-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.75;
+        }
+
+        .diagram-caption-icon svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            fill: none;
+        }
+
+        .diagram-caption-right {
+            font-size: 13px;
+            color: var(--color-muted);
+            font-weight: 400;
+            /* No 500 */
+        }
+
+        /* ── Fullscreen Overlay Mode ── */
+        .diagram-fullscreen-overlay {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #ebe8f2;
+            /* Soft desaturated lavender tint, full bleed */
+            z-index: 2100;
+            /* Above navbar (1005) and other components */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            touch-action: none;
+        }
+
+        .diagram-fullscreen-overlay.hidden {
+            display: none !important;
+        }
+
+        /* Fullscreen close/back button */
+        .diagram-fullscreen-close {
+            position: absolute;
+            top: var(--sp-lg);
+            left: var(--sp-lg);
+            z-index: 10;
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            gap: var(--sp-xs);
+            background: var(--color-white);
+            color: var(--color-ink);
+            border: 1.5px solid var(--color-ink);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 600;
+            /* No 500 */
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            transition: background 0.15s ease;
+        }
+
+        .diagram-fullscreen-close:hover {
+            background: var(--color-canvas);
+        }
+
+        .diagram-fullscreen-close svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Overwrite viewport inside fullscreen overlay */
+        .diagram-fullscreen-overlay .diagram-canvas-viewport {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .diagram-fullscreen-overlay .diagram-zoom-wrapper img {
+            max-width: 95%;
+            max-height: 95%;
+        }
+
+        .diagram-fullscreen-overlay .diagram-dropdown-wrap {
+            top: var(--sp-lg);
+            left: 140px;
+            /* Offset to clear close button */
+        }
+
+        body.diagram-scroll-locked {
+            overflow: hidden !important;
+        }
+
+        @media (max-width: 640px) {
+            .edge-grid {
+                display: none !important;
+            }
+        }
+
+        /* ── Footer Project Card ── */
+        .footer-project-card {
+            display: flex;
+            align-items: center;
+            background: #111;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-lg);
+            max-width: 680px;
+            margin: 0 auto 48px auto;
+            text-align: left;
+            text-decoration: none;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .footer-project-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.18);
+            background: #181818;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .footer-project-image-wrap {
+            width: 220px;
+            height: 160px;
+            flex-shrink: 0;
+            background: #161616;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+
+        .footer-project-card:hover .footer-project-image-wrap {
+            transform: scale(1.02);
+        }
+
+        .footer-project-content {
+            padding: var(--sp-xl);
+            flex-grow: 1;
+            color: var(--color-white);
+        }
+
+        .footer-project-next-tag {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 700;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .footer-project-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.25;
+            color: var(--color-white);
+        }
+
+        .footer-project-desc {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.45;
+            margin: 0;
+        }
+
+        .footer-project-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-right: var(--sp-xl);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 20px;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
+        }
+
+        .footer-project-card:hover .footer-project-arrow {
+            transform: translateX(4px);
+            color: var(--color-white);
+        }
+
+        @media (max-width: 576px) {
+            .footer-project-card {
+                flex-direction: column;
+            }
+            .footer-project-image-wrap {
+                width: 100%;
+                height: 140px;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            }
+            .footer-project-arrow {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Edge Grid Hairlines -->
+    <div class="edge-grid" aria-hidden="true">
+        <div class="grid-line left"></div>
+        <div class="grid-line right"></div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-bar" aria-label="Main navigation">
+        <div class="nav-inner">
+            <a href="../../index.html" class="nav-logo">AD</a>
+            <a href="../../index.html#work" class="nav-back">← Back to Work</a>
+        </div>
+    </nav>
+
+    <!-- Page Wrapper -->
+    <div class="page-wrapper">
+        <main>
+            <!-- ── Case Study Header ── -->
+            <div class="content-lock">
+                <div class="cs-hero-img-wrap">
+                    <img src="../../assets/images/hdfc-hero-image.jpeg" alt="HDFC Commercial Cards Portal Hero Screenshot">
+                </div>
+                <header class="cs-header reading-col">
+                    <h1 class="cs-title">
+                        <span class="line-muted">Commercial Cards Portal —</span>
+                        Reimagining Support, Trust, and Control for Corporate Banking
+                    </h1>
+                    <p class="cs-meta">HDFC Bank &nbsp;·&nbsp; 3 Months &nbsp;·&nbsp; UX Intern
+                        &nbsp;·&nbsp; Team: Senior UX Designer &amp; Developer</p>
+                </header>
+            </div>
+
+            <!-- ══════════════════════════════════════
+           1. OVERVIEW
+      ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-overview">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-overview">
+                            <span class="line-bold">Overview</span>
+                        </h2>
+                        <p class="cs-intro-line">Carried out over 12 weeks as part of my UX internship at HDFC Bank,
+                            under the guidance of Senior UX Designers and a Design Manager.</p>
+                        <p>A corporate finance manager shouldn't need a two-hour phone call to change a cardholder's
+                            limit. A travelling sales executive stuck at an airport at 11 PM shouldn't hear "call back
+                            during business hours." But that's exactly what commercial card portals were asking of their
+                            users — enterprise-grade stakes, running on consumer-grade patience.</p>
+                        <p>I spent this project figuring out why that gap exists and what closes it. Not by guessing —
+                            by benchmarking ten-plus banks across two very different markets, sitting with real users,
+                            and following the evidence to a conclusion I didn't expect going in: the fix wasn't a
+                            smarter dashboard or a prettier statement. It was <strong>support</strong> — rebuilt around
+                            speed, visibility, and control, the three things users kept describing without ever using
+                            those words.</p>
+
+                        <div class="wide-col" style="margin-top: 40px;">
+                            <div class="cs-img-wrap">
+                                <img src="../../assets/images/hdfc-hero-2.jpeg" alt="HDFC Portfolio Overview UI">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+           2. OBJECTIVE
+      ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-objective">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-objective">
+                            <span class="line-bold">Objective</span>
+                        </h2>
+                        <blockquote class="cs-blockquote">
+                            Analyze current industry trends and competitor offerings to ideate and design innovative,
+                            user-centric features for a commercial cards portal, delivering actionable recommendations
+                            for future enhancements.
+                        </blockquote>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+           3. PROCESS
+      ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-process">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-process">
+                            <span class="line-bold">Process</span>
+                        </h2>
+                        <p>Secondary research first, to understand the category. Then competitive benchmarking — both
+                            enterprise banking and consumer fintech, on purpose, since one moves faster than the other.
+                            Then real user data: interviews, journey mapping, a UI audit. Only after all of that:
+                            empathize, ideate, design.</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+           4. COMPETITOR ANALYSIS (Merged Table)
+      ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-competitor">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-competitor">
+                            <span class="line-bold">Competitor Analysis</span>
+                        </h2>
+                        <p>I started where any serious teardown should — with the banks already doing this at scale. Six
+                            of them: <strong>SBI, American Express, HSBC, Citi Bank, ICICI, and Bank of
+                                America.</strong></p>
+                        <p>Three things showed up in every single one, which told me they weren't differentiators — they
+                            were the entry fee. Past the baseline, the interesting work was happening in two directions:
+                            enterprise features that made heavy workflows lighter, and consumer-fintech patterns that
+                            had been slowly raising the bar on what "good" looks like, even for corporate users.</p>
+                        <p>I didn't stop at enterprise banking, and this is the part that actually shaped the direction
+                            of the project. Commercial cards feel outdated for a simple reason — consumer fintech has
+                            been sprinting for a decade, and enterprise banking hasn't been chasing it. So I ran the
+                            same benchmark against the consumer side: <strong>SBI, American Express, HSBC, Citi Bank,
+                                ICICI, Bank of America, Barclays, CRED, and Union Bank</strong>, among others.</p>
+
+                        <!-- Common features mind map -->
+                        <div class="cs-img-wrap">
+                            <img src="../../assets/images/features.jpeg" alt="Common features mind map">
+                        </div>
+                        <p class="img-caption">The baseline, mapped out before I went looking for what actually sets
+                            these portals apart.</p>
+
+                        <p style="margin-top: 32px;">Two things stood out immediately, and one of them ended up
+                            mattering more than anything else in this project. First: CRED and Bank of America were the
+                            only two actually turning trust into a <em>reward</em>. Second, and this is the thread I
+                            kept pulling: <strong>Bank of America's virtual assistant and always-on support model kept
+                                showing up as the bar nobody else was clearing.</strong> I didn't know it yet, but that
+                            observation would end up defining the entire solution.</p>
+                    </div>
+
+                    <!-- Competitor Table — Wide Column, full-bleed of content-lock -->
+                    <div class="wide-col" style="margin-top: 48px;">
+
+                        <!-- Filter Pills -->
+                        <div class="table-filter-bar" role="group" aria-label="Filter by segment">
+                            <button class="filter-pill active" data-filter="all">All</button>
+                            <button class="filter-pill" data-filter="common">Common</button>
+                            <button class="filter-pill" data-filter="b2b">B2B Standout</button>
+                            <button class="filter-pill" data-filter="b2c">B2C Standout</button>
+                        </div>
+
+                        <!-- Desktop Table (≥ 640px) -->
+                        <div class="cs-table-wrap">
+                            <table class="cs-table" aria-label="Competitor feature analysis">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Feature</th>
+                                        <th scope="col">Bank / Brand</th>
+                                        <th scope="col">Segment</th>
+                                        <th scope="col">What it does</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- ── COMMON rows (3) ── -->
+                                    <tr data-segment="common">
+                                        <td>Dashboard</td>
+                                        <td>—</td>
+                                        <td><span class="seg-pill common">Common</span></td>
+                                        <td>Credit limits, available credit, current balance, recent activity, payment
+                                            due dates</td>
+                                    </tr>
+                                    <tr data-segment="common">
+                                        <td>Accounts Management</td>
+                                        <td>—</td>
+                                        <td><span class="seg-pill common">Common</span></td>
+                                        <td>Active cards, card settings, pending applications, payments, PIN changes,
+                                            employee details, statements</td>
+                                    </tr>
+                                    <tr data-segment="common">
+                                        <td>Transactions</td>
+                                        <td>—</td>
+                                        <td><span class="seg-pill common">Common</span></td>
+                                        <td>Statement generation, alerts/limits, payments, real-time monitoring, vendor
+                                            creation, dispute resolution</td>
+                                    </tr>
+                                    <!-- ── B2B STANDOUT rows (8) ── -->
+                                    <tr data-segment="b2b">
+                                        <td>Business Travel Account (BTA)</td>
+                                        <td>American Express</td>
+                                        <td><span class="seg-pill b2b">B2B Standout</span></td>
+                                        <td>A cardless account travelers use to bill air and rail charges directly</td>
+                                    </tr>
+                                    <tr data-segment="b2b">
+                                        <td>Secure File Upload</td>
+                                        <td>American Express</td>
+                                        <td><span class="seg-pill b2b">B2B Standout</span></td>
+                                        <td>Upload files into back-office systems, with file-locking for added control
+                                        </td>
+                                    </tr>
+                                    <tr data-segment="b2b">
+                                        <td>Pinned Accounts</td>
+                                        <td>American Express</td>
+                                        <td><span class="seg-pill b2b">B2B Standout</span></td>
+                                        <td>Favorite frequently-used accounts for instant access, cutting search time
+                                        </td>
+                                    </tr>
+                                    <tr data-segment="b2b">
+                                        <td>Aging of Balance</td>
+                                        <td>Citi Bank</td>
+                                        <td><span class="seg-pill b2b">B2B Standout</span></td>
+                                        <td>Tracks outstanding balances by age (30/60/90 days) to manage cash flow</td>
+                                    </tr>
+                                    <tr data-segment="b2b">
+                                        <td>Business Travel Reports</td>
+                                        <td>American Express</td>
+                                        <td><span class="seg-pill b2b">B2B Standout</span></td>
+                                        <td>Summarizes travel and entertainment expenses for management review</td>
+                                    </tr>
+                                    <tr data-segment="b2b">
+                                        <td>Financial Management</td>
+                                        <td>HSBC</td>
+                                        <td><span class="seg-pill b2b">B2B Standout</span></td>
+                                        <td>Detailed budgeting/planning data, useful for supplier negotiations</td>
+                                    </tr>
+                                    <tr data-segment="b2b">
+                                        <td>Key Nicknames</td>
+                                        <td>Bank of America</td>
+                                        <td><span class="seg-pill b2b">B2B Standout</span></td>
+                                        <td>User-friendly names for account identifiers, instead of memorizing codes
+                                        </td>
+                                    </tr>
+                                    <tr data-segment="b2b">
+                                        <td>Custom Fields</td>
+                                        <td>Bank of America</td>
+                                        <td><span class="seg-pill b2b">B2B Standout</span></td>
+                                        <td>Lets companies tailor fields to their own internal terminology</td>
+                                    </tr>
+                                    <!-- ── B2C STANDOUT rows (16) ── -->
+                                    <tr data-segment="b2c">
+                                        <td>Goal Setting for Savings</td>
+                                        <td>Bank of America</td>
+                                        <td><span class="seg-pill b2c">B2C Standout</span></td>
+                                        <td>Set and auto-fund personalized savings goals</td>
+                                    </tr>
+                                    <tr data-segment="b2c">
+                                        <td>Split Bills</td>
+                                        <td>American Express</td>
+                                        <td><span class="seg-pill b2c">B2C Standout</span></td>
+                                        <td>Split payments with contacts, still earning rewards on the full amount</td>
+                                    </tr>
+                                    <tr data-segment="b2c">
+                                        <td>Reward-Driven System</td>
+                                        <td>CRED</td>
+                                        <td><span class="seg-pill b2c">B2C Standout</span></td>
+                                        <td>Cashback, CRED Points, and redeemable vouchers</td>
+                                    </tr>
+                                    <tr data-segment="b2c">
+                                        <td>Exclusivity Perks</td>
+                                        <td>CRED</td>
+                                        <td><span class="seg-pill b2c">B2C Standout</span></td>
+                                        <td>Rewards creditworthiness with CRED cash, no documentation needed</td>
+                                    </tr>
+                                    <tr data-segment="b2c">
+                                        <td>Transaction Map View</td>
+                                        <td>Barclaycard</td>
+                                        <td><span class="seg-pill b2c">B2C Standout</span></td>
+                                        <td>View payment locations on a map, by geography</td>
+                                    </tr>
+                                    <tr data-segment="b2c">
+                                        <td>Map View for Offers</td>
+                                        <td>American Express</td>
+                                        <td><span class="seg-pill b2c">B2C Standout</span></td>
+                                        <td>Discover nearby deals via an interactive map</td>
+                                    </tr>
+                                    <tr data-segment="b2c">
+                                        <td>Budgeting Tools</td>
+                                        <td>Bank of America</td>
+                                        <td><span class="seg-pill b2c">B2C Standout</span></td>
+                                        <td>Monitor spending, set budgets, view trend reports</td>
+                                    </tr>
+                                    <tr data-segment="b2c">
+                                        <td>Round-Up Savings</td>
+                                        <td>Ally</td>
+                                        <td><span class="seg-pill b2c">B2C Standout</span></td>
+                                        <td>Rounds up purchases to the nearest dollar, saves the difference</td>
+                                    </tr>
+                                    <tr data-segment="b2c">
+                                        <td>Simple Support Page</td>
+                                        <td>American Express</td>
+                                        <td><span class="seg-pill b2c">B2C Standout</span></td>
+                                        <td>One clear page for calls, FAQs, and feedback</td>
+                                    </tr>
+                                    <tr data-segment="b2c">
+                                        <td>Scheduled ATM Withdrawals</td>
+                                        <td>Bank of America</td>
+                                        <td><span class="seg-pill b2c">B2C Standout</span></td>
+                                        <td>Set up a withdrawal in advance for a chosen time/date</td>
+                                    </tr>
+                                    <tr data-segment="b2c">
+                                        <td>International Currency Orders</td>
+                                        <td>Bank of America</td>
+                                        <td><span class="seg-pill b2c">B2C Standout</span></td>
+                                        <td>Order foreign currency, delivered or picked up</td>
+                                    </tr>
+                                    <tr data-segment="b2c">
+                                        <td>Custom Cash Orders</td>
+                                        <td>Bank of America</td>
+                                        <td><span class="seg-pill b2c">B2C Standout</span></td>
+                                        <td>Order exact denominations and quantities of cash</td>
+                                    </tr>
+                                    <tr data-segment="b2c">
+                                        <td>Virtual Assistant</td>
+                                        <td>Bank of America</td>
+                                        <td><span class="seg-pill b2c">B2C Standout</span></td>
+                                        <td>In-app security meter plus a guided virtual assistant</td>
+                                    </tr>
+                                    <tr data-segment="b2c">
+                                        <td>Scheduled Payments</td>
+                                        <td>Barclaycard</td>
+                                        <td><span class="seg-pill b2c">B2C Standout</span></td>
+                                        <td>Set payments to occur automatically at a future date</td>
+                                    </tr>
+                                    <tr data-segment="b2c">
+                                        <td>Scam Alert Pop-Ups</td>
+                                        <td>Barclaycard</td>
+                                        <td><span class="seg-pill b2c">B2C Standout</span></td>
+                                        <td>Flags suspicious payments with a "could this be a scam?" prompt</td>
+                                    </tr>
+                                    <tr data-segment="b2c">
+                                        <td>Payment Categorization</td>
+                                        <td>Barclaycard</td>
+                                        <td><span class="seg-pill b2c">B2C Standout</span></td>
+                                        <td>Tag payments by type (family, investment, shopping) for clarity</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="disclosure-btn-wrap desktop-disclosure-only">
+                            <button class="disclosure-btn" id="desktop-view-all">View All</button>
+                        </div>
+
+                        <!-- Mobile Card Stack (< 640px) -->
+                        <div class="mobile-table-cards" aria-label="Competitor feature analysis cards">
+                            <!-- Common -->
+                            <div class="mobile-card" data-segment="common">
+                                <div class="mobile-card-feature">Dashboard</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">All
+                                        Competitors</span><span class="seg-pill common">Common</span></div>
+                                <div class="mobile-card-desc">Credit limits, available credit, current balance, recent
+                                    activity, payment due dates</div>
+                            </div>
+                            <div class="mobile-card" data-segment="common">
+                                <div class="mobile-card-feature">Accounts Management</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">All
+                                        Competitors</span><span class="seg-pill common">Common</span></div>
+                                <div class="mobile-card-desc">Active cards, card settings, pending applications,
+                                    payments, PIN changes, employee details, statements</div>
+                            </div>
+                            <div class="mobile-card" data-segment="common">
+                                <div class="mobile-card-feature">Transactions</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">All
+                                        Competitors</span><span class="seg-pill common">Common</span></div>
+                                <div class="mobile-card-desc">Statement generation, alerts/limits, payments, real-time
+                                    monitoring, vendor creation, dispute resolution</div>
+                            </div>
+                            <!-- B2B Standout -->
+                            <div class="mobile-card" data-segment="b2b">
+                                <div class="mobile-card-feature">Business Travel Account (BTA)</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">American
+                                        Express</span><span class="seg-pill b2b">B2B Standout</span></div>
+                                <div class="mobile-card-desc">A cardless account travelers use to bill air and rail
+                                    charges directly</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2b">
+                                <div class="mobile-card-feature">Secure File Upload</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">American
+                                        Express</span><span class="seg-pill b2b">B2B Standout</span></div>
+                                <div class="mobile-card-desc">Upload files into back-office systems, with file-locking
+                                    for added control</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2b">
+                                <div class="mobile-card-feature">Pinned Accounts</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">American
+                                        Express</span><span class="seg-pill b2b">B2B Standout</span></div>
+                                <div class="mobile-card-desc">Favorite frequently-used accounts for instant access,
+                                    cutting search time</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2b">
+                                <div class="mobile-card-feature">Aging of Balance</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">Citi Bank</span><span
+                                        class="seg-pill b2b">B2B Standout</span></div>
+                                <div class="mobile-card-desc">Tracks outstanding balances by age (30/60/90 days) to
+                                    manage cash flow</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2b">
+                                <div class="mobile-card-feature">Business Travel Reports</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">American
+                                        Express</span><span class="seg-pill b2b">B2B Standout</span></div>
+                                <div class="mobile-card-desc">Summarizes travel and entertainment expenses for
+                                    management review</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2b">
+                                <div class="mobile-card-feature">Financial Management</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">HSBC</span><span
+                                        class="seg-pill b2b">B2B Standout</span></div>
+                                <div class="mobile-card-desc">Detailed budgeting/planning data, useful for supplier
+                                    negotiations</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2b">
+                                <div class="mobile-card-feature">Key Nicknames</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">Bank of
+                                        America</span><span class="seg-pill b2b">B2B Standout</span></div>
+                                <div class="mobile-card-desc">User-friendly names for account identifiers, instead of
+                                    memorizing codes</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2b">
+                                <div class="mobile-card-feature">Custom Fields</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">Bank of
+                                        America</span><span class="seg-pill b2b">B2B Standout</span></div>
+                                <div class="mobile-card-desc">Lets companies tailor fields to their own internal
+                                    terminology</div>
+                            </div>
+                            <!-- B2C Standout -->
+                            <div class="mobile-card" data-segment="b2c">
+                                <div class="mobile-card-feature">Goal Setting for Savings</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">Bank of
+                                        America</span><span class="seg-pill b2c">B2C Standout</span></div>
+                                <div class="mobile-card-desc">Set and auto-fund personalized savings goals</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2c">
+                                <div class="mobile-card-feature">Split Bills</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">American
+                                        Express</span><span class="seg-pill b2c">B2C Standout</span></div>
+                                <div class="mobile-card-desc">Split payments with contacts, still earning rewards on the
+                                    full amount</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2c">
+                                <div class="mobile-card-feature">Reward-Driven System</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">CRED</span><span
+                                        class="seg-pill b2c">B2C Standout</span></div>
+                                <div class="mobile-card-desc">Cashback, CRED Points, and redeemable vouchers</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2c">
+                                <div class="mobile-card-feature">Exclusivity Perks</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">CRED</span><span
+                                        class="seg-pill b2c">B2C Standout</span></div>
+                                <div class="mobile-card-desc">Rewards creditworthiness with CRED cash, no documentation
+                                    needed</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2c">
+                                <div class="mobile-card-feature">Transaction Map View</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">Barclaycard</span><span
+                                        class="seg-pill b2c">B2C Standout</span></div>
+                                <div class="mobile-card-desc">View payment locations on a map, by geography</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2c">
+                                <div class="mobile-card-feature">Map View for Offers</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">American
+                                        Express</span><span class="seg-pill b2c">B2C Standout</span></div>
+                                <div class="mobile-card-desc">Discover nearby deals via an interactive map</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2c">
+                                <div class="mobile-card-feature">Budgeting Tools</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">Bank of
+                                        America</span><span class="seg-pill b2c">B2C Standout</span></div>
+                                <div class="mobile-card-desc">Monitor spending, set budgets, view trend reports</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2c">
+                                <div class="mobile-card-feature">Round-Up Savings</div>
+                                <div class="mobile-card-brand">Ally</span><span class="seg-pill b2c">B2C Standout</span></div>
+                                <div class="mobile-card-desc">Rounds up purchases to the nearest dollar, saves the
+                                    difference</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2c">
+                                <div class="mobile-card-feature">Simple Support Page</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">American
+                                        Express</span><span class="seg-pill b2c">B2C Standout</span></div>
+                                <div class="mobile-card-desc">One clear page for calls, FAQs, and feedback</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2c">
+                                <div class="mobile-card-feature">Scheduled ATM Withdrawals</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">Bank of
+                                        America</span><span class="seg-pill b2c">B2C Standout</span></div>
+                                <div class="mobile-card-desc">Set up a withdrawal in advance for a chosen time/date
+                                </div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2c">
+                                <div class="mobile-card-feature">International Currency Orders</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">Bank of
+                                        America</span><span class="seg-pill b2c">B2C Standout</span></div>
+                                <div class="mobile-card-desc">Order foreign currency, delivered or picked up</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2c">
+                                <div class="mobile-card-feature">Custom Cash Orders</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">Bank of
+                                        America</span><span class="seg-pill b2c">B2C Standout</span></div>
+                                <div class="mobile-card-desc">Order exact denominations and quantities of cash</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2c">
+                                <div class="mobile-card-feature">Virtual Assistant</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">Bank of
+                                        America</span><span class="seg-pill b2c">B2C Standout</span></div>
+                                <div class="mobile-card-desc">In-app security meter plus a guided virtual assistant
+                                </div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2c">
+                                <div class="mobile-card-feature">Scheduled Payments</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">Barclaycard</span><span
+                                        class="seg-pill b2c">B2C Standout</span></div>
+                                <div class="mobile-card-desc">Set payments to occur automatically at a future date</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2c">
+                                <div class="mobile-card-feature">Scam Alert Pop-Ups</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">Barclaycard</span><span
+                                        class="seg-pill b2c">B2C Standout</span></div>
+                                <div class="mobile-card-desc">Flags suspicious payments with a "could this be a scam?"
+                                    prompt</div>
+                            </div>
+                            <div class="mobile-card" data-segment="b2c">
+                                <div class="mobile-card-feature">Payment Categorization</div>
+                                <div class="mobile-card-meta"><span class="mobile-card-brand">Barclaycard</span><span
+                                        class="seg-pill b2c">B2C Standout</span></div>
+                                <div class="mobile-card-desc">Tag payments by type (family, investment, shopping) for
+                                    clarity</div>
+                            </div>
+                        </div>
+
+                        <div class="disclosure-btn-wrap mobile-disclosure-only">
+                            <button class="disclosure-btn" id="mobile-view-all">View All</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+           5. INFORMATION ARCHITECTURE STUDY
+      ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-ia">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-ia">
+                            <span class="line-bold">Information Architecture Study</span>
+                        </h2>
+                        <p>Cataloguing features answers <em>what</em> a portal can do. It says nothing about
+                            <em>how</em> a person finds any of it. So I studied the IA of every competitor I'd just
+                            benchmarked — not casually, but mapped in detail, admin view and cardholder view separately,
+                            because they're not the same job and shouldn't be organized like they are.
+                        </p>
+
+                        <div class="cs-img-wrap">
+                            <img src="../../assets/images/mao.png" alt="Information Architecture Study mind map">
+                        </div>
+                        <p class="img-caption">Same underlying data, two completely different structures — depending on
+                            who's actually looking at the screen.</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+           6. MIND MAPPING GOOD-TO-HAVE FEATURES
+      ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-mindmap">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-mindmap">
+                            <span class="line-bold">Mind Mapping Good-to-Have Features</span>
+                        </h2>
+                        <p>With every good idea from both benchmarks on the table, I mind-mapped the full set — every
+                            "good-to-have," no filtering yet, across Accounts, Approvals, Reports, Statements, Rewards,
+                            Business Travel, and Security. Deliberately wide, before anything got narrowed down.</p>
+
+                        <div class="cs-img-wrap">
+                            <img src="../../assets/images/hdfc.png" alt="Good-to-have features mind map">
+                        </div>
+                        <p class="img-caption">Every candidate feature from both benchmarks, sorted into the categories
+                            that would later become the sitemap.</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+           7. USER INTERVIEW FINDINGS
+      ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-interviews">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-interviews">
+                            <span class="line-bold">User Interview Findings</span>
+                        </h2>
+                        <p>Research tells you what's possible. Users tell you what's actually broken. Four things came
+                            up again and again, almost word for word across interviews:</p>
+
+                        <ul class="cs-list">
+                            <li><strong>Support was the biggest source of frustration, full stop.</strong> People
+                                described 2–3 hour ordeals just to change cardholder details or push through an approval
+                                — worse, with zero coverage outside business hours or on bank holidays.</li>
+                            <li><strong>Approvals stalled constantly.</strong> Once initiated, they'd just sit. Users
+                                called this out unprompted as one of the most frustrating parts of the entire
+                                experience.</li>
+                            <li><strong>Nobody felt in control.</strong> The system made people dependent on support for
+                                things they should have been able to handle themselves.</li>
+                            <li><strong>And the Bank of America comparison stung.</strong> Users brought it up on their
+                                own — BoA's round-the-clock support made everyone else's version feel like a downgrade.
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+           8. PERSONAS
+      ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-personas">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-personas">
+                            <span class="line-bold">Personas</span>
+                        </h2>
+                    </div>
+
+                    <div class="personas-grid">
+                        <!-- Persona 1 -->
+                        <div class="persona-card">
+                            <h3>Meera Sharma — Corporate Finance Manager, 38, Bengaluru</h3>
+                            <div class="persona-tag">Manufacturing, 2,000 employees</div>
+                            <p class="persona-bio">Runs financial operations across multiple departments — budgets,
+                                transactions, compliance — but loses hours every week to routine approvals.</p>
+
+                            <div class="persona-section-title">Goals &amp; Needs</div>
+                            <ul class="cs-list">
+                                <li>Self-service tools to cut dependency on support</li>
+                                <li>A dedicated, fast-response support channel</li>
+                                <li>One dashboard with real-time transaction data</li>
+                            </ul>
+
+                            <div class="persona-section-title">Pain Points</div>
+                            <ul class="cs-list">
+                                <li>Can't adjust limits or manage cardholders without contacting support</li>
+                                <li>Approvals stall further on holidays, with no 24/7 coverage</li>
+                                <li>Report discrepancies mean repeat support requests</li>
+                            </ul>
+
+                            <blockquote class="cs-blockquote">
+                                "I need faster and more efficient approval processes to keep our financial operations
+                                running smoothly. Reducing our dependency on customer support for routine tasks would
+                                greatly enhance our productivity."
+                            </blockquote>
+                        </div>
+
+                        <!-- Persona 2 -->
+                        <div class="persona-card">
+                            <h3>Rohan Mehta — Sales Executive, 29, Mumbai</h3>
+                            <div class="persona-tag">Technology, 500 employees</div>
+                            <p class="persona-bio">Travels constantly for client meetings and deals, managing a company
+                                card for flights, hotels, and entertainment along the way.</p>
+
+                            <div class="persona-section-title">Goals &amp; Needs</div>
+                            <ul class="cs-list">
+                                <li>Manage his card independently while on the move</li>
+                                <li>24/7 support with fast response during travel</li>
+                                <li>Integrated expense tracking without extra steps</li>
+                            </ul>
+
+                            <div class="persona-section-title">Pain Points</div>
+                            <ul class="cs-list">
+                                <li>Can't adjust card settings or limits while travelling</li>
+                                <li>Losing a card mid-trip means a slow, disruptive replacement process</li>
+                                <li>Support lags further across time zones, right when issues are most urgent</li>
+                            </ul>
+
+                            <blockquote class="cs-blockquote">
+                                "I need efficient tools to manage my card independently while traveling. Quick and
+                                reliable support is crucial for resolving any issues that arise, so I can focus on my
+                                business tasks without disruptions."
+                            </blockquote>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+           9. USER JOURNEY MAPPING
+      ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-journey">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-journey">
+                            <span class="line-bold">User Journey Mapping</span>
+                        </h2>
+                        <p>I traced the day of two different people using the same portal — the admin managing it, and
+                            the cardholding employee actually travelling. Same system, completely different lived
+                            experience.</p>
+
+                        <div class="cs-img-wrap">
+                            <img src="../../assets/images/image-3.png" alt="User journey map">
+                        </div>
+                        <p class="img-caption">A full day for the admin, morning routine to end-of-day wrap-up. The pain
+                            points repeat almost hourly: buried under messages, no visibility into where an approval
+                            stands, nothing available outside office hours. The opportunities repeat just as often —
+                            automate the documentation, let people self-serve the routine stuff, give them one place to
+                            track it all.</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+           10. BUCKETTING
+      ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-bucketing">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-bucketing">
+                            <span class="line-bold">Bucketting</span>
+                        </h2>
+                        <p>I engaged participants in a bucketing exercise to understand their mental models — how they'd
+                            naturally group and prioritize the portal's content and functionality, rather than how the
+                            bank had structured it.</p>
+                    </div>
+
+                    <div class="wide-col">
+                        <div class="bucket-grid">
+
+                            <!-- 🏠 Homepage (Misc) — 8 rows — full width -->
+                            <div class="bucket-grid-full">
+                                <div class="bucket-category-title">🏠 Homepage (Misc)</div>
+                                <div class="simple-table-wrap">
+                                    <table class="simple-table" aria-label="Homepage questions">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" style="width:48px;">No.</th>
+                                                <th scope="col">User Question</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>1</td>
+                                                <td>Activate, deactivate, or apply for a new card</td>
+                                            </tr>
+                                            <tr>
+                                                <td>2</td>
+                                                <td>Avoid missing urgent alerts during off-hours</td>
+                                            </tr>
+                                            <tr>
+                                                <td>3</td>
+                                                <td>Manage high email/task volume without feeling overwhelmed</td>
+                                            </tr>
+                                            <tr>
+                                                <td>4</td>
+                                                <td>Navigate the portal clearly and efficiently</td>
+                                            </tr>
+                                            <tr>
+                                                <td>5</td>
+                                                <td>Access one streamlined channel for all support communication</td>
+                                            </tr>
+                                            <tr>
+                                                <td>6</td>
+                                                <td>Track every email, request, approval, and notification in one place
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>7</td>
+                                                <td>Protect focused, uninterrupted work time</td>
+                                            </tr>
+                                            <tr>
+                                                <td>8</td>
+                                                <td>Stay aware of urgent requests without delaying other users</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- 💳 Transactions — 3 rows -->
+                            <div>
+                                <div class="bucket-category-title">💳 Transactions</div>
+                                <div class="simple-table-wrap">
+                                    <table class="simple-table" aria-label="Transactions questions">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" style="width:48px;">No.</th>
+                                                <th scope="col">User Question</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>1</td>
+                                                <td>Raise a request for approval</td>
+                                            </tr>
+                                            <tr>
+                                                <td>2</td>
+                                                <td>Find relevant data quickly within large transaction statements</td>
+                                            </tr>
+                                            <tr>
+                                                <td>3</td>
+                                                <td>Settle payments and catch overdue items before deadlines</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- ⚙️ Portal Settings — 1 row -->
+                            <div>
+                                <div class="bucket-category-title">⚙️ Portal Settings</div>
+                                <div class="simple-table-wrap">
+                                    <table class="simple-table" aria-label="Portal settings questions">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" style="width:48px;">No.</th>
+                                                <th scope="col">User Question</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>1</td>
+                                                <td>Customize the dashboard to surface only what matters to the
+                                                    organization</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- 👤 User Profiles — 6 rows -->
+                            <div>
+                                <div class="bucket-category-title">👤 User Profiles</div>
+                                <div class="simple-table-wrap">
+                                    <table class="simple-table" aria-label="User profiles questions">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" style="width:48px;">No.</th>
+                                                <th scope="col">User Question</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>1</td>
+                                                <td>View and edit account details</td>
+                                            </tr>
+                                            <tr>
+                                                <td>2</td>
+                                                <td>Adjust a cardholder's limit up or down</td>
+                                            </tr>
+                                            <tr>
+                                                <td>3</td>
+                                                <td>Block a card immediately if a cardholder loses it</td>
+                                            </tr>
+                                            <tr>
+                                                <td>4</td>
+                                                <td>Send and track approvals across user accounts</td>
+                                            </tr>
+                                            <tr>
+                                                <td>5</td>
+                                                <td>Update personal account details easily</td>
+                                            </tr>
+                                            <tr>
+                                                <td>6</td>
+                                                <td>Create and manage roles for all portal users</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- 💬 Support — 6 rows -->
+                            <div>
+                                <div class="bucket-category-title">💬 Support</div>
+                                <div class="simple-table-wrap">
+                                    <table class="simple-table" aria-label="Support questions">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" style="width:48px;">No.</th>
+                                                <th scope="col">User Question</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>1</td>
+                                                <td>Support travelling employees with urgent card issues</td>
+                                            </tr>
+                                            <tr>
+                                                <td>2</td>
+                                                <td>Reach the Relationship Manager quickly, with a record of the
+                                                    conversation</td>
+                                            </tr>
+                                            <tr>
+                                                <td>3</td>
+                                                <td>Resolve issues via the FAQ knowledge base when support isn't
+                                                    available</td>
+                                            </tr>
+                                            <tr>
+                                                <td>4</td>
+                                                <td>Get fast support of any kind, whenever needed</td>
+                                            </tr>
+                                            <tr>
+                                                <td>5</td>
+                                                <td>Send queries to support through simplified channels</td>
+                                            </tr>
+                                            <tr>
+                                                <td>6</td>
+                                                <td>Track the status of a support request after sending it</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+           11. FINDINGS
+      ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-findings">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-findings">
+                            <span class="line-bold">Findings</span>
+                        </h2>
+                        <p>Everything converged on the same handful of problems, from three completely different
+                            research methods. That's usually the signal you've found the real issue, not a symptom of
+                            it.</p>
+                    </div>
+
+                    <div class="findings-card-grid">
+                        <div class="findings-card">
+                            <span class="findings-card-num">01</span>
+                            <div class="findings-card-title">Approval Wait-Times</div>
+                            <p class="findings-card-desc">Delays after every initiation, no exceptions.</p>
+                        </div>
+                        <div class="findings-card">
+                            <span class="findings-card-num">02</span>
+                            <div class="findings-card-title">Dependency on Support</div>
+                            <p class="findings-card-desc">No self-service transaction history, requiring users to email
+                                for it.</p>
+                        </div>
+                        <div class="findings-card">
+                            <span class="findings-card-num">03</span>
+                            <div class="findings-card-title">The 24/7 Gap</div>
+                            <p class="findings-card-desc">No support coverage round-the-clock while competitors offer
+                                exactly that.</p>
+                        </div>
+                        <div class="findings-card">
+                            <span class="findings-card-num">04</span>
+                            <div class="findings-card-title">Off-Hours Abandonment</div>
+                            <p class="findings-card-desc">No flexibility or help available to portal users outside
+                                standard business hours.</p>
+                        </div>
+                        <div class="findings-card">
+                            <span class="findings-card-num">05</span>
+                            <div class="findings-card-title">Barely Any Self-Service</div>
+                            <p class="findings-card-desc">Almost all banking operations are routed back through a manual
+                                human queue.</p>
+                        </div>
+                        <div class="findings-card">
+                            <span class="findings-card-num">06</span>
+                            <div class="findings-card-title">A Clear Ask for Control</div>
+                            <p class="findings-card-desc">Users want flexible, direct access to statements and card
+                                settings.</p>
+                        </div>
+                        <div class="findings-card">
+                            <span class="findings-card-num">07</span>
+                            <div class="findings-card-title">A Clear Ask for Speed</div>
+                            <p class="findings-card-desc">Portal actions must be fast, highly accessible, and resolved
+                                quickly.</p>
+                        </div>
+                        <div class="findings-card">
+                            <span class="findings-card-num">08</span>
+                            <div class="findings-card-title">Task Overload</div>
+                            <p class="findings-card-desc">High email volume and no clear portal statuses make
+                                prioritization difficult.</p>
+                        </div>
+                        <div class="findings-card">
+                            <span class="findings-card-num">09</span>
+                            <div class="findings-card-title">Tracking Blind Spots</div>
+                            <p class="findings-card-desc">Approvals are delayed or missed with zero visibility into
+                                status or denial reasons.</p>
+                        </div>
+                        <div class="findings-card">
+                            <span class="findings-card-num">10</span>
+                            <div class="findings-card-title">Time-Zone Penalties</div>
+                            <p class="findings-card-desc">Travelling employees hit dead ends outside domestic office
+                                hours, threatening plans.</p>
+                        </div>
+                        <div class="findings-card">
+                            <span class="findings-card-num">11</span>
+                            <div class="findings-card-title">Data Without Priority</div>
+                            <p class="findings-card-desc">No institution-specific highlighting, burying important data
+                                in the UI.</p>
+                        </div>
+                        <div class="findings-card">
+                            <span class="findings-card-num">12</span>
+                            <div class="findings-card-title">No Path to Self-Resolve</div>
+                            <p class="findings-card-desc">Even simple and routine portal problems require outside
+                                administrative help.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+           11b. FINAL INSIGHTS
+       ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-insights">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-insights">
+                            <span class="line-bold">Final Insights</span>
+                        </h2>
+                        <p class="insights-intro-line">The research highlighted three primary challenges: limited
+                            customer support hours causing delays in issue resolution, the absence of a streamlined
+                            workflow leading to inefficiencies and mental strain, and the lack of a streamlined request
+                            system resulting in delayed responses and missed critical approvals. These issues
+                            collectively impact user satisfaction and workflow efficiency.</p>
+                    </div>
+
+                    <div class="insights-section-grid">
+                        <div class="insight-conclusion-card">
+                            <h3>Customer Care Frustrations</h3>
+                            <p>Users experience delays in resolving issues due to limited customer support hours and
+                                non-availability of round-the-clock assistance, which can lead to frustration and
+                                hampering of urgent tasks.</p>
+                        </div>
+                        <div class="insight-conclusion-card">
+                            <h3>Lack of Streamlined Workflow</h3>
+                            <p>Users face uncertainty and delays due to a lack of real-time notifications for approval
+                                statuses due to manual tracking of approvals over various channels like Emails, Calls
+                                and Web Portal, which can lead to confusion, inefficiency and mental load.</p>
+                        </div>
+                        <div class="insight-conclusion-card">
+                            <h3>Inefficient Request Handling</h3>
+                            <p>Portal admins are unable to differentiate urgent requests and approvals from routine ones
+                                due to a lack of information hierarchy and streamlined request system, which can lead to
+                                delayed response times, missed critical approvals, and inefficient workflow management.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+           12. DESIGN BRIEF
+      ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-brief">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-brief">
+                            <span class="line-bold">Design Brief</span>
+                        </h2>
+                        <blockquote class="cs-blockquote">
+                            Design an innovative commercial cards portal that greatly improves the user experience by
+                            addressing current challenges, including issues with customer care support and the need for
+                            effective self-service options. The portal should streamline portal management and handle
+                            requests efficiently, ensuring a seamless and user-friendly experience for all stakeholders.
+                        </blockquote>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+           13. IDEATION
+      ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-ideation">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-ideation">
+                            <span class="line-bold">Ideation</span>
+                        </h2>
+                        <p>Three keywords came straight out of the research: <strong>24/7 support, tracking, urgent
+                                requests.</strong> I didn't need more than that. This wasn't a feature-prioritization
+                            problem — support was the single biggest gap between this portal and what people actually
+                            wanted from it.</p>
+
+                        <div class="ideation-group">
+                            <div class="ideation-group-title">🌟 24/7 Support — the real focus</div>
+                            <ul class="cs-list">
+                                <li>An AI virtual assistant running on NLP and voice recognition, handling queries
+                                    automatically.</li>
+                                <li>A knowledge base built on video and images, not flat FAQ text.</li>
+                                <li>An in-portal ticketing channel with push notifications and chat history, so nothing
+                                    lives in someone's inbox.</li>
+                                <li>An IVR hotline with automated call summaries feeding a CRM.</li>
+                                <li>Templated emails for the repetitive stuff.</li>
+                            </ul>
+                        </div>
+
+                        <div class="ideation-group">
+                            <div class="ideation-group-title">⏱️ Tracking &amp; Workflow</div>
+                            <ul class="cs-list">
+                                <li>A visual task list that just says what to do next.</li>
+                                <li>Calendar sync through the Google Calendar API.</li>
+                                <li>Progress bars and milestone badges under one tracking tab instead of scattered
+                                    across three tools.</li>
+                                <li>Multi-channel alerts — SMS, email, in-portal — before anything becomes urgent.</li>
+                            </ul>
+                        </div>
+
+                        <div class="ideation-group">
+                            <div class="ideation-group-title">🚨 Urgent Requests</div>
+                            <ul class="cs-list">
+                                <li>An ML engine that actually triages incoming requests by criteria, keywords, and
+                                    sender profile.</li>
+                                <li>Automatic escalation if something sits too long.</li>
+                                <li>A dashboard that surfaces priority in real time, with Slack and CRM integrations
+                                    built in.</li>
+                            </ul>
+                        </div>
+
+                        <p>Every one of these maps directly back to a pain point that came out of the interviews:</p>
+
+                        <div class="simple-table-wrap">
+                            <table class="simple-table" aria-label="Pain point to design response mapping">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Pain Point</th>
+                                        <th scope="col">Design Response</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Approval Wait-Times</strong> — delays after initiation</td>
+                                        <td>ML-driven triage, automated escalation, real-time dashboard alerts bypassing
+                                            manual backlogs</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Dependency on Support</strong> — no self-service transaction history
+                                        </td>
+                                        <td>Centralized tracking tab, customizable widgets, self-service account logs
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Desire for 24/7 Support</strong> — BoA sets the bar</td>
+                                        <td>NLP virtual assistant paired with a comprehensive knowledge base</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Off-Hours Support Gap</strong> — nothing outside business hours</td>
+                                        <td>Non-human channel automation — in-portal ticketing, automated IVR, email
+                                            triggers</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+           14. SITEMAP & IA
+      ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-sitemap">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-sitemap">
+                            <span class="line-bold">Sitemap and Information Architecture</span>
+                        </h2>
+                        <p>Eight sections, each one earning its place from the research above, not from convention:</p>
+
+                        <div class="sitemap-grid">
+                            <div class="sitemap-item">
+                                <div class="sitemap-item-label">Dashboard</div>
+                                <div class="sitemap-item-desc">Relationship details, card overviews, payment status,
+                                    requests, alerts, and the AI assistant, all in one place.</div>
+                            </div>
+                            <div class="sitemap-item">
+                                <div class="sitemap-item-label">Corporate Users</div>
+                                <div class="sitemap-item-desc">Managing users, roles, and approval pathways.</div>
+                            </div>
+                            <div class="sitemap-item">
+                                <div class="sitemap-item-label">Requests</div>
+                                <div class="sitemap-item-desc">One hub for everything incoming and outgoing, built for
+                                    tracking, not searching.</div>
+                            </div>
+                            <div class="sitemap-item">
+                                <div class="sitemap-item-label">Cards</div>
+                                <div class="sitemap-item-desc">Every corporate card, with full detail and history per
+                                    card.</div>
+                            </div>
+                            <div class="sitemap-item">
+                                <div class="sitemap-item-label">Payment Overdue</div>
+                                <div class="sitemap-item-desc">Searchable, downloadable, no need to ask anyone for it.
+                                </div>
+                            </div>
+                            <div class="sitemap-item">
+                                <div class="sitemap-item-label">Communication</div>
+                                <div class="sitemap-item-desc">Alerts, prioritization, and a direct line to the
+                                    relationship manager.</div>
+                            </div>
+                            <div class="sitemap-item">
+                                <div class="sitemap-item-label">Support &amp; FAQ</div>
+                                <div class="sitemap-item-desc">The full knowledge base and the virtual assistant, in one
+                                    place.</div>
+                            </div>
+                            <div class="sitemap-item">
+                                <div class="sitemap-item-label">Track</div>
+                                <div class="sitemap-item-desc">Status on every task and request, always visible.</div>
+                            </div>
+                        </div>
+
+                        <!-- Unified Diagram Canvas: Sitemap + IA -->
+                        <div id="diagram-viewer" class="diagram-card-container" style="margin-top: var(--sp-lg);">
+                            <div class="diagram-canvas-card">
+
+                                <!-- Tab pills -->
+                                <div class="diagram-tab-wrap">
+                                    <button class="diagram-tab-btn active" data-view="sitemap">Sitemap</button>
+                                    <button class="diagram-tab-btn" data-view="ia">Information Architecture</button>
+                                </div>
+
+                                <!-- Expand to fullscreen -->
+                                <button class="diagram-pill-btn diagram-expand-btn" aria-label="Expand to fullscreen">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" stroke="currentColor"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                            fill="none" />
+                                    </svg>
+                                </button>
+
+                                <!-- Canvas -->
+                                <div class="diagram-canvas-viewport">
+                                    <div class="diagram-zoom-wrapper">
+                                        <img id="diagram-main-image" src="../../assets/images/sitemap.png"
+                                            alt="Sitemap diagram" draggable="false">
+                                    </div>
+                                </div>
+
+                                <!-- Zoom controls -->
+                                <div class="diagram-zoom-controls">
+                                    <button class="diagram-zoom-btn zoom-in" aria-label="Zoom in">+</button>
+                                    <button class="diagram-zoom-btn zoom-out" aria-label="Zoom out">−</button>
+                                </div>
+                            </div>
+
+                            <!-- Caption bar — no timestamp -->
+                            <div class="diagram-caption-bar">
+                                <div class="diagram-caption-left">
+                                    <span class="diagram-caption-icon">
+                                        <svg viewBox="0 0 24 24">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" stroke-width="2"
+                                                fill="none" />
+                                            <line x1="9" y1="3" x2="9" y2="21" stroke-width="2" />
+                                            <line x1="15" y1="3" x2="15" y2="21" stroke-width="2" />
+                                            <line x1="3" y1="9" x2="21" y2="9" stroke-width="2" />
+                                            <line x1="3" y1="15" x2="21" y2="15" stroke-width="2" />
+                                        </svg>
+                                    </span>
+                                    <span class="diagram-caption-text" id="diagram-caption-text">Portfolio ·
+                                        Sitemap</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+           15. USER FLOWS
+      ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-flows">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-flows">
+                            <span class="line-bold">User Flows</span>
+                        </h2>
+                        <div class="cs-img-wrap" style="margin-top: 40px;">
+                            <img src="../../assets/images/user-flow.png"
+                                alt="User flows diagram — login modal, portal dashboard, urgent alerts, and communication paths">
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+           16. CONCEPTS & WIREFRAMES
+      ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-wireframes">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-wireframes">
+                            <span class="line-bold">Concepts and Wireframes</span>
+                        </h2>
+                        <p>Paper first — two rounds of sketches, tested against the sitemap and IA before anything got
+                            locked in. Then digital wireframes, several layouts per screen, kept only what actually
+                            served the user, not what looked cleanest on a grid.</p>
+
+                        <div class="cs-img-wrap" style="margin-top: 40px;">
+                            <img src="../../assets/images/wireframes.png"
+                                alt="Low-fidelity wireframe concepts for HDFC commercial cards portal">
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+           17. VISUAL DESIGN & PROTOTYPE
+      ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-visual">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-visual">
+                            <span class="line-bold">Visual Design &amp; Prototype</span>
+                        </h2>
+                        <p>Color and type had one job: feel like enterprise banking without feeling cold. Here's where
+                            that landed, screen by screen.</p>
+                    </div>
+
+                    <div class="reading-col">
+                        <div class="cs-img-wrap" style="margin-top: 40px;">
+                            <img src="../../assets/images/login.png"
+                                alt="Login screen — username, password, and captcha verification">
+                        </div>
+                        <p class="img-caption">Entering the portal: a clean, secure entry point combining credential
+                            input and dual-factor Captcha validation.</p>
+
+                        <div class="cs-img-wrap" style="margin-top: 40px;">
+                            <img src="../../assets/images/dashboard.jpeg"
+                                alt="Dashboard screen — overview, priority alerts, request status, and virtual assistant widget">
+                        </div>
+                        <p class="img-caption">One navigation bar to every tab, widgets surfacing what actually matters
+                            to the institution, priority alerts kept separate so urgent never gets lost in routine, and
+                            the assistant available from anywhere on the page.</p>
+
+                        <div class="cs-img-wrap" style="margin-top: 40px;">
+                            <img src="../../assets/images/relationship.jpeg"
+                                alt="Relationship Card Management — card list in a scannable, card-style visual format">
+                        </div>
+                        <p class="img-caption">Cards rendered as cards — a visual format built specifically so scanning
+                            a huge list stays fast.</p>
+
+                        <div class="cs-img-wrap" style="margin-top: 40px;">
+                            <img src="../../assets/images/request.jpeg"
+                                alt="Requests page — pending, approved, and rejected queries with bulk actions">
+                        </div>
+                        <p class="img-caption">Toggle between Pending, Approved, Rejected. Approve All for the batch
+                            work, Accept/Reject per row for everything else — no repetitive navigation required.</p>
+
+                        <div class="cs-img-wrap" style="margin-top: 40px;">
+                            <img src="../../assets/images/communication.jpeg"
+                                alt="Communication Tab — integrated messaging with attached requests and file sharing">
+                        </div>
+                        <p class="img-caption">Familiar email format, status chips so nobody has to open a thread just
+                            to check where it stands, and requests attachable directly to a message so nothing needs a
+                            second trip.</p>
+
+                        <div class="cs-img-wrap" style="margin-top: 40px;">
+                            <img src="../../assets/images/alters.jpeg"
+                                alt="Alerts Page — toggled between email, customer care, and request alerts with priority tags">
+                        </div>
+                        <p class="img-caption">Accessible from anywhere, toggled by category, with priority tags doing
+                            the work of separating urgent from routine at a glance.</p>
+
+                        <div class="cs-img-wrap" style="margin-top: 40px;">
+                            <img src="../../assets/images/assistent.jpeg"
+                                alt="Virtual Assistant — Amy, guiding users through common tasks with follow-up prompts">
+                        </div>
+                        <p class="img-caption">Amy opens with suggested questions and every reply carries its own
+                            next-step prompt — this is the 24/7-support gap, closed.</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+           18. REFLECTION
+      ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-reflection" style="border-bottom: none;">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-reflection">
+                            <span class="line-bold">Reflection</span>
+                        </h2>
+                        <p>I went in expecting a features project. I came out with a support project. Every
+                            "good-to-have" I catalogued — travel accounts, budgeting tools, reward systems — mattered
+                            less than the simple fact that people couldn't get help when they needed it, couldn't see
+                            where a request stood, and had no way to tell the system what actually mattered right now.
+                        </p>
+                        <p>The strongest ideas here weren't the flashiest ones. They were the ones that handed control
+                            back to people who'd been fighting the system just to do their jobs.</p>
+                    </div>
+                </section>
+            </div>
+
+        </main>
+
+        <!-- ── Footer ── -->
+        <footer class="cs-footer" id="page-footer">
+            <div class="content-lock">
+                <a href="../virgio-checkout/index.html" class="footer-project-card">
+                    <div class="footer-project-image-wrap">
+                        <img src="../../assets/images/main-hero-before-virgio.png" alt="Virgio Checkout" style="width: 100%; height: 100%; object-fit: cover;" />
+                    </div>
+                    <div class="footer-project-content">
+                        <span class="footer-project-next-tag">Up Next</span>
+                        <h3 class="footer-project-title">Moving checkout off Shopify</h3>
+                        <p class="footer-project-subhead" style="font-size: 13.5px; font-weight: 400; color: rgba(255,255,255,0.7); margin-bottom: 6px;">Conversion Optimization · +2.68% conversion</p>
+                        <p class="footer-project-desc">Every sale event pushed checkout past its limits — so we stopped depending on someone else's infrastructure.</p>
+                    </div>
+                    <div class="footer-project-arrow">
+                        ↗
+                    </div>
+                </a>
+                <p style="color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 16px;">© 2026 Amit Dezin</p>
+                <a href="../../index.html#work">← Back to all work</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ── Competitor Table Filter Script ── -->
+    <script>
+        (function () {
+            const pills = document.querySelectorAll('.filter-pill');
+            const tableRows = document.querySelectorAll('.cs-table tbody tr[data-segment]');
+            const mobileCards = document.querySelectorAll('.mobile-table-cards .mobile-card[data-segment]');
+
+            const desktopBtnWrap = document.querySelector('.desktop-disclosure-only');
+            const desktopBtn = document.getElementById('desktop-view-all');
+            const mobileBtnWrap = document.querySelector('.mobile-disclosure-only');
+            const mobileBtn = document.getElementById('mobile-view-all');
+
+            const desktopContainer = document.querySelector('.cs-table-wrap');
+            const mobileContainer = document.querySelector('.mobile-table-cards');
+
+            let currentFilter = 'all';
+            let isDesktopExpanded = false;
+            let isMobileExpanded = false;
+            const LIMIT = 5;
+
+            function updateProgressiveDisclosure() {
+                // DESKTOP:
+                const matchingDesktopRows = Array.from(tableRows).filter(row => {
+                    const seg = row.dataset.segment;
+                    return currentFilter === 'all' || seg === currentFilter;
+                });
+
+                tableRows.forEach(row => {
+                    const isMatching = currentFilter === 'all' || row.dataset.segment === currentFilter;
+                    if (!isMatching) {
+                        row.classList.add('hidden');
+                        row.style.display = 'none';
+                    } else {
+                        const idx = matchingDesktopRows.indexOf(row);
+                        if (!isDesktopExpanded && idx >= LIMIT) {
+                            row.classList.add('hidden');
+                            row.style.display = 'none';
+                        } else {
+                            row.classList.remove('hidden');
+                            row.style.display = '';
+                        }
+                    }
+                });
+
+                if (matchingDesktopRows.length > LIMIT) {
+                    desktopBtnWrap.style.display = '';
+                    desktopBtn.textContent = isDesktopExpanded ? 'Show Less' : 'View All';
+                } else {
+                    desktopBtnWrap.style.display = 'none';
+                }
+
+                // MOBILE:
+                const matchingMobileCards = Array.from(mobileCards).filter(card => {
+                    const seg = card.dataset.segment;
+                    return currentFilter === 'all' || seg === currentFilter;
+                });
+
+                mobileCards.forEach(card => {
+                    const isMatching = currentFilter === 'all' || card.dataset.segment === currentFilter;
+                    if (!isMatching) {
+                        card.classList.add('hidden');
+                        card.style.display = 'none';
+                    } else {
+                        const idx = matchingMobileCards.indexOf(card);
+                        if (!isMobileExpanded && idx >= LIMIT) {
+                            card.classList.add('hidden');
+                            card.style.display = 'none';
+                        } else {
+                            card.classList.remove('hidden');
+                            card.style.display = '';
+                        }
+                    }
+                });
+
+                if (matchingMobileCards.length > LIMIT) {
+                    mobileBtnWrap.style.display = '';
+                    mobileBtn.textContent = isMobileExpanded ? 'Show Less' : 'View All';
+                } else {
+                    mobileBtnWrap.style.display = 'none';
+                }
+            }
+
+            function applyFilter(filter) {
+                currentFilter = filter;
+                pills.forEach(p => {
+                    p.classList.toggle('active', p.dataset.filter === filter);
+                });
+                updateProgressiveDisclosure();
+            }
+
+            function toggleExpand(isDesktop) {
+                const container = isDesktop ? desktopContainer : mobileContainer;
+                const isExpanded = isDesktop ? isDesktopExpanded : isMobileExpanded;
+                const btn = isDesktop ? desktopBtn : mobileBtn;
+
+                const startHeight = container.offsetHeight;
+
+                if (isDesktop) {
+                    isDesktopExpanded = !isDesktopExpanded;
+                } else {
+                    isMobileExpanded = !isMobileExpanded;
+                }
+
+                updateProgressiveDisclosure();
+
+                container.style.height = 'auto';
+                const endHeight = container.offsetHeight;
+
+                if (window.gsap) {
+                    gsap.fromTo(container,
+                        { height: startHeight },
+                        {
+                            height: endHeight,
+                            duration: 0.45,
+                            ease: 'power3.out',
+                            clearProps: 'height',
+                            onComplete: () => {
+                                if (window.ScrollTrigger) {
+                                    ScrollTrigger.refresh();
+                                }
+                            }
+                        }
+                    );
+                } else {
+                    container.style.height = 'auto';
+                }
+            }
+
+            pills.forEach(pill => {
+                pill.addEventListener('click', () => {
+                    isDesktopExpanded = false;
+                    isMobileExpanded = false;
+                    applyFilter(pill.dataset.filter);
+                });
+                pill.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        isDesktopExpanded = false;
+                        isMobileExpanded = false;
+                        applyFilter(pill.dataset.filter);
+                    }
+                });
+            });
+
+            desktopBtn.addEventListener('click', () => toggleExpand(true));
+            mobileBtn.addEventListener('click', () => toggleExpand(false));
+
+            applyFilter('all');
+        })();
+    </script>
+
+    <!-- ── Fullscreen Diagram Overlay ── -->
+    <div id="diagram-overlay" class="diagram-fullscreen-overlay hidden">
+        <button class="diagram-fullscreen-close" aria-label="Exit fullscreen">
+            <svg viewBox="0 0 24 24">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+            </svg>
+            Back to Case Study
+        </button>
+
+        <div class="diagram-canvas-viewport">
+            <div class="diagram-zoom-wrapper" id="overlay-zoom-wrapper">
+                <img id="overlay-image" src="" alt="Fullscreen view" draggable="false">
+            </div>
+        </div>
+
+        <div class="diagram-zoom-controls">
+            <button class="diagram-zoom-btn zoom-in" aria-label="Zoom in">+</button>
+            <button class="diagram-zoom-btn zoom-out" aria-label="Zoom out">−</button>
+        </div>
+    </div>
+
+    <!-- ── Panzoom Library and Diagram Canvas Initializer ── -->
+    <script src="https://cdn.jsdelivr.net/npm/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
+    <script>
+        (function () {
+            const panzoomOptions = {
+                maxScale: 6,
+                minScale: 0.2,
+                animate: true,
+                duration: 200,
+            };
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                panzoomOptions.animate = false;
+            }
+
+            if (typeof Panzoom === 'undefined') {
+                console.error('Panzoom library failed to load!');
+                return;
+            }
+
+            function setupCanvas(imgElement, zoomInBtn, zoomOutBtn, viewport) {
+                const pz = Panzoom(imgElement, panzoomOptions);
+
+                viewport.addEventListener('wheel', function (e) {
+                    if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+                    e.preventDefault();
+                    pz.zoomWithWheel(e);
+                }, { passive: false });
+
+                zoomInBtn.addEventListener('click', (e) => { e.preventDefault(); pz.zoomIn(); });
+                zoomOutBtn.addEventListener('click', (e) => { e.preventDefault(); pz.zoomOut(); });
+                viewport.addEventListener('dblclick', (e) => { e.preventDefault(); pz.reset(); });
+                viewport.addEventListener('pointerdown', (e) => { pz.handleDown(e); });
+
+                return pz;
+            }
+
+            // ── Views registry ──
+            const views = {
+                sitemap: {
+                    src: '../../assets/images/sitemap.png',
+                    caption: 'Portfolio · Sitemap'
+                },
+                ia: {
+                    src: '../../assets/images/ia.png',
+                    caption: 'Portfolio · Information Architecture'
+                }
+            };
+
+            // ── Unified canvas setup ──
+            const mainImg = document.getElementById('diagram-main-image');
+            const mainZoomIn = document.querySelector('#diagram-viewer .zoom-in');
+            const mainZoomOut = document.querySelector('#diagram-viewer .zoom-out');
+            const mainViewport = document.querySelector('#diagram-viewer .diagram-canvas-viewport');
+            const captionText = document.getElementById('diagram-caption-text');
+            const tabBtns = document.querySelectorAll('#diagram-viewer .diagram-tab-btn');
+
+            let currentView = 'sitemap';
+            let mainPz = setupCanvas(mainImg, mainZoomIn, mainZoomOut, mainViewport);
+
+            function switchView(viewName) {
+                if (!views[viewName] || viewName === currentView) return;
+                currentView = viewName;
+                mainImg.src = views[viewName].src;
+                captionText.textContent = views[viewName].caption;
+                tabBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.view === viewName));
+                setTimeout(() => { mainPz.reset(); }, 50);
+            }
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => switchView(btn.dataset.view));
+            });
+
+            // ── Fullscreen Overlay ──
+            const overlay = document.getElementById('diagram-overlay');
+            const overlayImg = document.getElementById('overlay-image');
+            const overlayClose = document.querySelector('.diagram-fullscreen-close');
+            const overlayZoomIn = overlay.querySelector('.zoom-in');
+            const overlayZoomOut = overlay.querySelector('.zoom-out');
+            const overlayViewport = overlay.querySelector('.diagram-canvas-viewport');
+            let overlayPz = null;
+
+            function openFullscreen() {
+                overlay.classList.remove('hidden');
+                document.body.classList.add('diagram-scroll-locked');
+                overlayImg.src = mainImg.src;
+                setTimeout(() => {
+                    if (overlayPz) overlayPz.destroy();
+                    overlayPz = setupCanvas(overlayImg, overlayZoomIn, overlayZoomOut, overlayViewport);
+                    overlayPz.reset();
+                }, 50);
+            }
+
+            function closeFullscreen() {
+                overlay.classList.add('hidden');
+                document.body.classList.remove('diagram-scroll-locked');
+                if (overlayPz) { overlayPz.destroy(); overlayPz = null; }
+            }
+
+            document.querySelector('#diagram-viewer .diagram-expand-btn')
+                .addEventListener('click', (e) => { e.preventDefault(); openFullscreen(); });
+
+            overlayClose.addEventListener('click', (e) => { e.preventDefault(); closeFullscreen(); });
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !overlay.classList.contains('hidden')) closeFullscreen();
+            });
+        })();
+    </script>
+
+</body>
+
+</html>

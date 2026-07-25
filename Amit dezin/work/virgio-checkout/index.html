@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virgio Checkout — Case Study · Amit Dezin</title>
+    <meta name="description"
+        content="From Shopify dependency to workflow control: a UX case study of the Virgio Checkout redesign by Amit Dezin.">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'><rect width='32' height='32' rx='8' fill='%230a0a0a'/><text x='16' y='22' text-anchor='middle' font-family='system-ui' font-size='16' font-weight='600' fill='white'>AD</text></svg>">
+
+    <style>
+        :root {
+            --color-ink: #0a0a0a;
+            --color-muted: #6e6e73;
+            --color-hairline: #e0e0e0;
+            --color-canvas: #f5f5f7;
+            --color-white: #ffffff;
+            --color-surface-dark: #1a1a1a;
+            --sp-xxs: 4px;
+            --sp-xs: 8px;
+            --sp-sm: 12px;
+            --sp-md: clamp(14px, 0.2vw + 15px, 16px);
+            --sp-lg: clamp(16px, 0.8vw + 12px, 24px);
+            --sp-xl: clamp(20px, 1.2vw + 15px, 32px);
+            --sp-xxl: clamp(24px, 2.4vw + 14px, 48px);
+            --sp-section: clamp(40px, 4vw + 24px, 80px);
+            --radius-pill: 9999px;
+            --radius-lg: 18px;
+            --radius-sm: 8px;
+            --font-body: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+            --shadow-resting: rgba(0, 0, 0, 0.08) 0px 4px 20px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-size: clamp(15px, 0.2vw + 14px, 17px);
+            font-weight: 400;
+            line-height: 1.47;
+            letter-spacing: -0.01em;
+            color: var(--color-ink);
+            background: var(--color-white);
+            -webkit-font-smoothing: antialiased
+        }
+
+        .edge-grid {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0
+        }
+
+        .grid-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(0, 0, 0, 0.06)
+        }
+
+        .grid-line.left {
+            left: 48px
+        }
+
+        .grid-line.right {
+            right: 48px
+        }
+
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1005;
+            height: 52px;
+            padding: 0 var(--sp-xl);
+            display: flex;
+            align-items: center;
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            background: rgba(255, 255, 255, 0.72);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06)
+        }
+
+        .nav-inner {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .nav-logo {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--color-ink);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            min-height: 44px;
+            padding: 0 10px;
+            flex-shrink: 0;
+        }
+
+        .nav-back {
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--color-muted);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s ease;
+            min-height: 44px;
+            padding: 0 10px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .nav-back:hover {
+            color: var(--color-ink)
+        }
+
+        .page-wrapper {
+            padding-top: 52px
+        }
+
+        .content-lock {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 0 var(--sp-xl)
+        }
+
+        .reading-col {
+            max-width: 65ch;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .wide-col {
+            max-width: 100%
+        }
+
+        .cs-header {
+            padding: var(--sp-xxl) 0 48px;
+            border-bottom: 1px solid var(--color-hairline);
+            margin-bottom: 40px
+        }
+
+        .cs-back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--color-muted);
+            text-decoration: none;
+            margin-bottom: var(--sp-xl);
+            transition: color 0.2s ease
+        }
+
+        .cs-back-link:hover {
+            color: var(--color-ink)
+        }
+
+        .cs-title {
+            font-size: clamp(32px, 5vw, 52px);
+            font-weight: 700;
+            line-height: 1.08;
+            letter-spacing: -0.03em;
+            color: var(--color-ink);
+            margin-bottom: var(--sp-lg)
+        }
+
+        .cs-title .line-muted {
+            display: block;
+            font-weight: 300;
+            color: var(--color-muted)
+        }
+
+        .cs-meta {
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--color-muted);
+            letter-spacing: -0.01em
+        }
+
+        .cs-section {
+            padding: 52px 0;
+            border-bottom: 1px solid var(--color-hairline)
+        }
+
+        .cs-section:last-child {
+            border-bottom: none
+        }
+
+        .cs-intro-line {
+            font-size: clamp(22px, 2.2vw + 14px, 32px);
+            font-weight: 300;
+            line-height: 1.35;
+            color: var(--color-muted);
+            letter-spacing: -0.015em;
+            margin-bottom: var(--sp-xl);
+            margin-top: 4px
+        }
+
+        @media (max-width: 768px) {
+            .cs-intro-line {
+                font-size: 22px;
+                line-height: 1.38;
+                letter-spacing: -0.01em;
+                margin-bottom: var(--sp-md);
+            }
+        }
+
+        .two-tone-hd {
+            font-size: clamp(28px, 3.5vw, 40px);
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: var(--sp-xl)
+        }
+
+        .two-tone-hd .line-muted {
+            display: block;
+            font-weight: 300;
+            color: var(--color-muted)
+        }
+
+        .two-tone-hd .line-bold {
+            display: block;
+            font-weight: 700;
+            color: var(--color-ink)
+        }
+
+        p {
+            margin-bottom: var(--sp-lg);
+            font-size: clamp(15px, 0.2vw + 14px, 17px);
+            font-weight: 400;
+            line-height: 1.6;
+            color: var(--color-ink)
+        }
+
+        p:last-child {
+            margin-bottom: 0
+        }
+
+        strong {
+            font-weight: 700
+        }
+
+        em {
+            font-style: italic
+        }
+
+        .cs-blockquote {
+            border-left: 3px solid var(--color-hairline);
+            padding: var(--sp-sm) 0 var(--sp-sm) var(--sp-xl);
+            margin: var(--sp-xl) 0;
+            color: var(--color-ink);
+            font-style: normal;
+            font-size: clamp(15px, 0.2vw + 14px, 17px);
+            font-weight: 400;
+            line-height: 1.6;
+            letter-spacing: -0.01em;
+        }
+
+        .cs-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 var(--sp-lg) 0
+        }
+
+        .cs-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: var(--sp-sm);
+            font-size: clamp(15px, 0.2vw + 14px, 17px);
+            line-height: 1.6;
+            color: var(--color-ink)
+        }
+
+        .cs-list li::before {
+            content: "—";
+            position: absolute;
+            left: 0;
+            color: var(--color-muted);
+            font-weight: 400
+        }
+
+        .sub-label {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--color-muted);
+            margin-bottom: var(--sp-sm);
+            display: block;
+        }
+
+        .img-placeholder {
+            border: 1.5px dashed var(--color-hairline);
+            border-radius: var(--radius-sm);
+            aspect-ratio: 16/9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--sp-xl);
+            margin: var(--sp-xl) 0 var(--sp-sm) 0;
+            background: #fafafa;
+            text-align: center;
+            gap: var(--sp-xs)
+        }
+
+        .img-placeholder-icon {
+            opacity: 0.25;
+            font-size: 32px;
+            margin-bottom: var(--sp-xs)
+        }
+
+        .img-placeholder-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-muted);
+            letter-spacing: 0
+        }
+
+        .img-placeholder+.img-caption {
+            font-size: 13px;
+            color: var(--color-muted);
+            font-style: italic;
+            text-align: center;
+            margin-top: var(--sp-xxs);
+            margin-bottom: var(--sp-xl)
+        }
+
+        /* ── Component: Hero Stat Strip ── */
+        .stat-strip {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            width: 100%;
+            margin-bottom: 52px;
+            padding: 8px 0;
+            border-top: 1px solid var(--color-hairline);
+            border-bottom: 1px solid var(--color-hairline);
+        }
+
+        .stat-chip {
+            flex: 1;
+            padding: var(--sp-sm) var(--sp-xl);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .stat-chip:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            top: 15%;
+            bottom: 15%;
+            right: 0;
+            width: 1px;
+            background-color: var(--color-hairline);
+        }
+
+        .stat-number {
+            font-size: clamp(24px, 3.5vw, 36px);
+            font-weight: 300;
+            /* Tagline weight (no 500) */
+            color: var(--color-ink);
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            font-weight: 400;
+            /* Caption weight */
+            color: var(--color-muted);
+            letter-spacing: 0px;
+            text-transform: none;
+        }
+
+        @media (max-width: 900px) {
+            .stat-strip {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0;
+            }
+
+            .stat-chip {
+                padding: var(--sp-md) var(--sp-lg);
+            }
+
+            .stat-chip:nth-child(2n)::after {
+                display: none;
+            }
+
+            .stat-chip:nth-child(1)::before,
+            .stat-chip:nth-child(2)::before {
+                content: "";
+                position: absolute;
+                bottom: 0;
+                left: var(--sp-lg);
+                right: var(--sp-lg);
+                height: 1px;
+                background-color: var(--color-hairline);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-bar {
+                padding: 0 var(--sp-md);
+            }
+
+            .stat-strip {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stat-chip::after {
+                display: none !important;
+            }
+
+            .stat-chip::before {
+                display: none !important;
+            }
+
+            .stat-chip:not(:last-child)::before {
+                content: "";
+                position: absolute;
+                bottom: 0;
+                left: var(--sp-lg);
+                right: var(--sp-lg);
+                height: 1px;
+                background-color: var(--color-hairline);
+                display: block !important;
+            }
+        }
+
+        /* ── Component: Equal-Weight Results Grid ── */
+        .results-grid-equal {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--sp-xl);
+            width: 100%;
+        }
+
+        .results-grid-equal .secondary-stat-block {
+            display: flex;
+            flex-direction: column;
+            padding: var(--sp-lg);
+            background: #fafafa;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--color-hairline);
+        }
+
+        .results-grid-equal .sec-stat-num {
+            font-size: 28px;
+            font-weight: 300;
+            color: var(--color-ink);
+            margin-bottom: 8px;
+            line-height: 1.2;
+            letter-spacing: -0.01em;
+        }
+
+        @media(max-width: 768px) {
+            .results-grid-equal {
+                grid-template-columns: 1fr;
+                gap: var(--sp-lg);
+            }
+        }
+
+        /* ── Component: Observations 2x2 Grid ── */
+        .quadrant-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--sp-sm);
+            margin: var(--sp-lg) 0;
+            width: 100%;
+        }
+
+        .quadrant-card {
+            border: 1px solid var(--color-hairline);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100px;
+        }
+
+        /* Alternating tints (grayscale only, subtle alternate) */
+        .quadrant-card:nth-child(odd) {
+            background-color: #fafafa;
+        }
+
+        .quadrant-card:nth-child(even) {
+            background-color: #f3f3f5;
+        }
+
+        .quadrant-header-group {
+            margin-bottom: 8px;
+        }
+
+        .quadrant-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--color-ink);
+            margin-top: 2px;
+            margin-bottom: 0;
+        }
+
+        .quadrant-detail {
+            font-size: 13px;
+            line-height: 1.45;
+            color: #6c6c6c;
+            /* WCAG 2.2 AA Contrast compliant gray */
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 736px) {
+            .quadrant-grid {
+                grid-template-columns: 1fr;
+                gap: var(--sp-sm);
+            }
+
+            .quadrant-card {
+                min-height: auto;
+            }
+        }
+
+        /* ── Component: User/Business Problem Paired Block ── */
+        .problem-pairing {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--sp-xxl);
+            margin: var(--sp-xl) 0;
+            width: 100%;
+        }
+
+        .problem-col {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .problem-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--color-ink);
+        }
+
+        @media (max-width: 768px) {
+            .problem-pairing {
+                grid-template-columns: 1fr;
+                gap: var(--sp-xl);
+            }
+        }
+
+        /* ── Component: Design Direction Goals ── */
+        .goals-list {
+            margin-top: var(--sp-xl);
+            margin-bottom: var(--sp-xl);
+            display: flex;
+            flex-direction: column;
+            gap: var(--sp-xl);
+        }
+
+        .goal-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--sp-xl);
+        }
+
+        .goal-num {
+            font-size: 48px;
+            font-weight: 300;
+            line-height: 0.9;
+            color: var(--color-muted);
+            min-width: 60px;
+        }
+
+        .goal-text {
+            font-size: 17px;
+            line-height: 1.55;
+            color: var(--color-ink);
+            padding-top: 4px;
+        }
+
+        @media(max-width: 600px) {
+            .goal-item {
+                flex-direction: column;
+                gap: var(--sp-xs);
+            }
+
+            .goal-num {
+                font-size: 36px;
+                min-width: auto;
+            }
+
+            .goal-text {
+                padding-top: 0;
+            }
+        }
+
+        /* ── Component: Safeguard Cards & Alerts Mockup ── */
+        .safeguards-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--sp-xl);
+            margin: var(--sp-xl) 0;
+            width: 100%;
+        }
+
+        .safeguard-col {
+            display: flex;
+            flex-direction: column;
+            gap: var(--sp-sm);
+        }
+
+        .safeguard-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--color-ink);
+            margin-top: var(--sp-xxs);
+            margin-bottom: var(--sp-xs);
+        }
+
+        .safeguard-desc {
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--color-muted);
+            margin-bottom: var(--sp-lg);
+        }
+
+        /* Alert Toast Mockup */
+        .nudge-toast {
+            border: 1px solid #dcdcdc;
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            background-color: #fafafa;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: var(--sp-lg);
+        }
+
+        .nudge-icon {
+            font-size: 16px;
+            line-height: 1.2;
+            color: var(--color-ink);
+            user-select: none;
+        }
+
+        .nudge-message {
+            font-size: 13px;
+            line-height: 1.45;
+            color: var(--color-ink);
+            font-weight: 600;
+            /* No 500 */
+        }
+
+
+
+        @media (max-width: 768px) {
+            .safeguards-row {
+                grid-template-columns: 1fr;
+                gap: var(--sp-lg);
+            }
+        }
+
+        /* ── Component: Reusable Toggle Comparison ── */
+        .toggle-comp {
+            margin: var(--sp-xl) 0 var(--sp-xxl) 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .toggle-controls-row {
+            display: flex;
+            justify-content: center;
+            gap: var(--sp-xs);
+            margin-bottom: var(--sp-xl);
+        }
+
+        .toggle-pill-btn {
+            appearance: none;
+            padding: 12px 20px;
+            min-height: 44px;
+            border-radius: var(--radius-pill);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            /* No 500 */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1.5px solid var(--color-hairline);
+            background: var(--color-white);
+            color: var(--color-muted);
+        }
+
+        .toggle-pill-btn:hover {
+            color: var(--color-ink);
+            border-color: var(--color-ink);
+        }
+
+        .toggle-pill-btn.active {
+            background: var(--color-ink);
+            border-color: var(--color-ink);
+            color: var(--color-white);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .comparison-layout {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+            padding: 40px var(--sp-xl);
+        }
+
+        .mockup-frame-slot {
+            width: 240px;
+            height: auto;
+            border-radius: var(--radius-sm);
+            border: none;
+            background-color: var(--color-white);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            overflow-x: hidden;
+            overflow-y: hidden;
+            display: block;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 2;
+            transition: opacity 0.3s ease;
+            -ms-overflow-style: none;
+            /* IE and Edge */
+            scrollbar-width: none;
+            /* Firefox */
+        }
+
+        .mockup-frame-slot::-webkit-scrollbar {
+            display: none;
+            /* Chrome, Safari and Opera */
+        }
+
+        .mockup-frame-slot img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border: none !important;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        .hero-mockup-slot {
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+            border-radius: var(--radius-sm);
+            border: none;
+            background-color: transparent;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 2;
+            transition: opacity 0.3s ease;
+        }
+
+        .hero-mockup-slot img {
+            width: 100%;
+            height: auto;
+            border: none !important;
+        }
+
+        .hero-mockup-slot.hidden,
+        .mockup-frame-slot.hidden {
+            display: none !important;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .mockup-frame-slot .img-placeholder {
+            width: 100%;
+            height: 100%;
+            margin: 0 !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            aspect-ratio: auto !important;
+        }
+
+        .side-annotation {
+            position: absolute;
+            width: 220px;
+            background: #fafafa;
+            border: 1px solid var(--color-hairline);
+            border-radius: var(--radius-sm);
+            padding: var(--sp-md);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+            z-index: 3;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .side-annotation p {
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--color-ink);
+            margin: 0 !important;
+        }
+
+        /* Desktop specific absolute positioning */
+        .pos-left {
+            right: calc(50% + 160px);
+        }
+
+        .pos-left::after {
+            content: "";
+            position: absolute;
+            right: calc(var(--conn-width, 40px) * -1);
+            top: 50%;
+            width: var(--conn-width, 40px);
+            border-top: 1px solid var(--color-muted);
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+
+        .pos-right {
+            left: calc(50% + 160px);
+        }
+
+        .pos-right::after {
+            content: "";
+            position: absolute;
+            left: calc(var(--conn-width, 40px) * -1);
+            top: 50%;
+            width: var(--conn-width, 40px);
+            border-top: 1px solid var(--color-muted);
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+
+        .side-annotation.no-connector::after {
+            display: none !important;
+        }
+
+        .side-annotation.data-variant {
+            background-color: var(--color-white);
+            border: none;
+            border-left: 3px solid var(--color-ink);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        .side-annotation.hidden,
+        .mockup-frame-slot.hidden {
+            display: none !important;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @media (max-width: 900px) {
+            .comparison-layout {
+                flex-direction: column;
+                padding: 16px 0;
+                gap: var(--sp-sm);
+            }
+
+            .mockup-frame-slot {
+                width: 200px;
+                height: auto;
+            }
+
+            .side-annotation {
+                position: static !important;
+                width: 100% !important;
+                max-width: 280px;
+                box-shadow: none;
+            }
+
+            .side-annotation::after {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .toggle-controls-row {
+                gap: 6px;
+                margin-bottom: var(--sp-md);
+            }
+            .toggle-pill-btn {
+                padding: 8px 14px;
+                min-height: 36px;
+                font-size: 12px;
+            }
+            .mockup-frame-slot {
+                width: 190px;
+            }
+        }
+
+        /* ── Component: Problem statement lead ── */
+        .problem-lead-block {
+            margin: var(--sp-lg) 0 var(--sp-xl) 0;
+            padding: var(--sp-sm) 0;
+        }
+
+        .problem-lead-block .lead-text {
+            font-size: clamp(20px, 3.2vw, 25px);
+            font-weight: 700;
+            line-height: 1.4;
+            color: var(--color-ink);
+            margin: 0;
+        }
+
+        /* ── Component: User/Business Problem Paired Band ── */
+        .pairing-band {
+            background-color: #f6f6f8;
+            border-top: 1px solid var(--color-hairline);
+            border-bottom: 1px solid var(--color-hairline);
+            padding: 84px 0;
+            margin: var(--sp-xxl) 0;
+            width: 100%;
+        }
+
+        .problem-pairing {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 64px;
+            width: 100%;
+        }
+
+        .problem-col {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .problem-col .sub-label {
+            margin-bottom: var(--sp-md);
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--color-muted);
+        }
+
+        .problem-lead-text {
+            font-size: clamp(18px, 2.5vw, 22px);
+            font-weight: 300;
+            line-height: 1.5;
+            color: var(--color-ink);
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .pairing-band {
+                padding: 48px 0;
+                margin: var(--sp-xl) 0;
+            }
+
+            .problem-pairing {
+                grid-template-columns: 1fr;
+                gap: var(--sp-xl);
+            }
+        }
+
+        /* ── Component: Results Stats New ── */
+        .results-layout-new {
+            display: flex;
+            flex-direction: column;
+            gap: 48px;
+            width: 100%;
+            margin-top: var(--sp-xl);
+        }
+
+        .results-hero-block {
+            border-bottom: 1px solid var(--color-hairline);
+            padding-bottom: 32px;
+        }
+
+        .hero-stat-num {
+            font-size: clamp(48px, 8vw, 76px);
+            font-weight: 700;
+            line-height: 1.0;
+            color: var(--color-ink);
+            letter-spacing: -0.04em;
+            margin-bottom: var(--sp-xs);
+        }
+
+        .hero-stat-desc {
+            font-size: 20px;
+            font-weight: 300;
+            line-height: 1.45;
+            color: var(--color-muted);
+            margin: 0;
+        }
+
+        .results-secondary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--sp-xl);
+            width: 100%;
+        }
+
+        .secondary-stat-block {
+            display: flex;
+            flex-direction: column;
+            gap: var(--sp-xs);
+        }
+
+        .sec-stat-num {
+            font-size: 28px;
+            font-weight: 600;
+            /* No 500 */
+            line-height: 1.1;
+            color: var(--color-ink);
+            letter-spacing: -0.02em;
+        }
+
+        .sec-stat-desc {
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--color-muted);
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .results-secondary-grid {
+                grid-template-columns: 1fr;
+                gap: var(--sp-lg);
+            }
+        }
+
+        .cs-footer {
+            background: var(--color-ink);
+            color: var(--color-white);
+            padding: var(--sp-xxl) var(--sp-xl);
+            text-align: center;
+            border-top: 1px solid var(--color-hairline);
+            margin-top: 40px;
+        }
+
+        .cs-footer a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 14px
+        }
+
+        .cs-footer a:hover {
+            color: var(--color-white)
+        }
+
+        /* ── Scoped Grayscale Exception: Red/Green Annotation Tints & Bracket Connectors ── */
+        /* Green Tint: solution (Variant A) & intent (Variant B) */
+        .side-annotation.solution,
+        .side-annotation.intent {
+            background: #f4faf6; /* Light green wash */
+            border-color: rgba(40, 167, 69, 0.25);
+        }
+        .side-annotation.solution strong,
+        .side-annotation.intent strong {
+            color: #1b6d36; /* Darker green semantic text */
+        }
+        .side-annotation.solution::after,
+        .side-annotation.intent::after {
+            border-color: rgba(40, 167, 69, 0.5) !important;
+        }
+
+        /* Red Tint: problem (Variant A) & limitation (Variant B) */
+        .side-annotation.problem,
+        .side-annotation.limitation {
+            background: #fbf5f5; /* Light red wash */
+            border-color: rgba(220, 53, 69, 0.25);
+        }
+        .side-annotation.problem strong,
+        .side-annotation.limitation strong {
+            color: #a71d2a; /* Darker red semantic text */
+        }
+        .side-annotation.problem::after,
+        .side-annotation.limitation::after {
+            border-color: rgba(220, 53, 69, 0.5) !important;
+        }
+
+        /* Inline marker highlights for Safeguard Alerts (removing outer card container) */
+        .highlight-warn {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-ink);
+            background: #fff9db; /* soft yellow highlighter */
+            padding: 4px 8px;
+            border-radius: 2px;
+            font-style: italic;
+            margin-bottom: var(--sp-md);
+        }
+
+        .highlight-error {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-ink);
+            background: #ffe3e3; /* soft red highlighter */
+            padding: 4px 8px;
+            border-radius: 2px;
+            font-style: italic;
+            margin-bottom: var(--sp-md);
+        }
+
+        /* Hero Results Card Styling (for the top 2 metrics) */
+        .results-grid-equal .secondary-stat-block.hero-stat {
+            background: var(--color-ink) !important;
+            color: var(--color-white) !important;
+            border-color: var(--color-ink) !important;
+            padding: var(--sp-xl) var(--sp-lg) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        }
+        .results-grid-equal .secondary-stat-block.hero-stat .sec-stat-num {
+            font-size: 36px !important;
+            font-weight: 600 !important;
+            color: var(--color-white) !important;
+        }
+        .results-grid-equal .secondary-stat-block.hero-stat .sec-stat-desc {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        /* ── Footer Project Card (HDFC link) ── */
+        .footer-project-card {
+            display: flex;
+            align-items: center;
+            background: #111;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-lg);
+            max-width: 680px;
+            margin: 0 auto 48px auto;
+            text-align: left;
+            text-decoration: none;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .footer-project-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.18);
+            background: #181818;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .footer-project-image-wrap {
+            width: 220px;
+            height: 160px;
+            flex-shrink: 0;
+            background: #161616;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+
+        .footer-project-card:hover .footer-project-image-wrap {
+            transform: scale(1.02);
+        }
+
+        .footer-project-content {
+            padding: var(--sp-xl);
+            flex-grow: 1;
+            color: var(--color-white);
+        }
+
+        .footer-project-next-tag {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 700;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .footer-project-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.25;
+            color: var(--color-white);
+        }
+
+        .footer-project-desc {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.45;
+            margin: 0;
+        }
+
+        .footer-project-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-right: var(--sp-xl);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 20px;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
+        }
+
+        .footer-project-card:hover .footer-project-arrow {
+            transform: translateX(4px);
+            color: var(--color-white);
+        }
+
+        @media (max-width: 576px) {
+            .footer-project-card {
+                flex-direction: column;
+            }
+            .footer-project-image-wrap {
+                width: 100%;
+                height: 140px;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            }
+            .footer-project-arrow {
+                display: none;
+            }
+        }
+
+        @media(max-width:768px) {
+            .grid-line.left {
+                left: 16px
+            }
+
+            .grid-line.right {
+                right: 16px
+            }
+
+            .content-lock {
+                padding: 0 var(--sp-lg)
+            }
+        }
+
+        @media (max-width: 640px) {
+            .edge-grid {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Edge Grid Hairlines -->
+    <div class="edge-grid" aria-hidden="true">
+        <div class="grid-line left"></div>
+        <div class="grid-line right"></div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-bar" aria-label="Main navigation">
+        <div class="nav-inner">
+            <a href="../../index.html" class="nav-logo">AD</a>
+            <a href="../../index.html#work" class="nav-back">← Back to Work</a>
+        </div>
+    </nav>
+
+    <!-- Page Wrapper -->
+    <div class="page-wrapper">
+        <main>
+            <!-- ── Case Study Header ── -->
+            <div class="content-lock">
+                <header class="cs-header reading-col">
+                    <span class="sub-label">Checkout Redesign</span>
+                    <h1 class="cs-title">
+                        Virgio Checkout —
+                        <span class="line-muted">From Shopify Dependency to Workflow Control</span>
+                    </h1>
+                    <p class="cs-meta">Virgio Checkout &nbsp;·&nbsp; 2 Weeks &nbsp;·&nbsp; Research + Design
+                        &nbsp;·&nbsp; Team: Solo designer, PM, Engineer</p>
+                </header>
+
+                <!-- Hero Stat Strip -->
+                <div class="stat-strip">
+                    <div class="stat-chip">
+                        <div class="stat-number">+2.68%</div>
+                        <div class="stat-label">conversion uplift, reached 76.7% overall</div>
+                    </div>
+                    <div class="stat-chip">
+                        <div class="stat-number">25.7%</div>
+                        <div class="stat-label">faster checkout</div>
+                    </div>
+                    <div class="stat-chip">
+                        <div class="stat-number">94%</div>
+                        <div class="stat-label">address success</div>
+                    </div>
+                    <div class="stat-chip">
+                        <div class="stat-number">55.7%</div>
+                        <div class="stat-label">map recovery</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero Section Image Toggle -->
+            <div class="content-lock wide-col" style="margin-bottom:var(--sp-xxl);">
+                <div class="toggle-comp" id="comp-hero-flow">
+                    <div class="toggle-controls-row">
+                        <button class="toggle-pill-btn active" data-target-state="after">After</button>
+                        <button class="toggle-pill-btn" data-target-state="before">Before</button>
+                    </div>
+
+                    <div class="comparison-layout" style="max-width: 900px; padding: 20px 0;">
+                        <div class="hero-mockup-slot" data-comp-state="after">
+                            <img src="../../assets/images/main-hero-after-v.png" alt="Hero After"
+                                style="width:100%; border:none;" />
+                        </div>
+                        <div class="hero-mockup-slot hidden" data-comp-state="before">
+                            <img src="../../assets/images/main-hero-before-virgio.png" alt="Hero Before"
+                                style="width:100%; border:none;" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════
+            3. THE PROBLEM
+            ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-problem">
+                    <div class="reading-col">
+                        <h2
+                            style="font-size: 24px; font-weight: 700; color: #707070; text-transform: uppercase; margin-bottom: var(--sp-xs); letter-spacing: -0.01em;">
+                            THE PROBLEM</h2>
+                        <h3 class="two-tone-hd" id="sec-problem"
+                            style="font-size: clamp(22px, 3vw, 30px); margin-bottom: var(--sp-xl); margin-top: 0; line-height: 1.2;">
+                            <span class="line-bold">The Checkout That Couldn't Keep Up</span>
+                        </h3>
+
+                        <div class="problem-lead-block">
+                            <p class="lead-text"
+                                style="font-size: 24px; font-weight: 700; line-height: 1.4; color: var(--color-ink); margin: var(--sp-lg) 0;">
+                                <strong>"Checkout — the most revenue-critical moment in the entire journey — was running
+                                    on infrastructure we didn't control."</strong>
+                            </p>
+                        </div>
+
+                        <ul style="margin-bottom: var(--sp-lg); padding-left: var(--sp-lg);">
+                            <li>Sale events pushed checkout past its limits — every session firing off a stream of API
+                                calls</li>
+                            <li>Shopify capped how many could get through, then started throttling the rest</li>
+                            <li>The result landed exactly where it hurt most: slower responses, occasional instability,
+                                right at the moment of purchase</li>
+                        </ul>
+
+                        <p style="margin-bottom: var(--sp-lg);">The real issue sat one layer deeper.</p>
+
+                        <h3
+                            style="font-size: 19px; font-weight: 700; margin-top: 32px; margin-bottom: var(--sp-xs); color: var(--color-ink);">
+                            Infrastructure We Didn't Own</h3>
+                        <p>We were running our most performance-sensitive, revenue-critical moment inside someone else's
+                            system — which is exactly why checkout became the first thing we chose to take back.</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+            4. OBSERVATIONS — FOUR-QUADRANT GRID
+            ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-quadrant">
+                    <div class="reading-col">
+                        <h2
+                            style="font-size: 24px; font-weight: 700; color: #707070; text-transform: uppercase; margin-bottom: var(--sp-xs); letter-spacing: -0.01em;">
+                            OBSERVATIONS</h2>
+                        <h3 class="two-tone-hd" id="sec-quadrant"
+                            style="font-size: clamp(22px, 3vw, 30px); margin-bottom: var(--sp-xl); margin-top: 0; line-height: 1.2;">
+                            <span class="line-bold">Shopify's Four Breaking Points</span>
+                        </h3>
+                        <p class="cs-intro-line" style="margin-top: 0; margin-bottom: var(--sp-lg);">Four separate
+                            pressures were converging inside Shopify's checkout, all
+                            at once:</p>
+                    </div>
+
+                    <div class="quadrant-grid">
+                        <div class="quadrant-card">
+                            <div class="quadrant-header-group">
+                                <span class="sub-label">System</span>
+                                <h3 class="quadrant-title">Rate Limits</h3>
+                            </div>
+                            <p class="quadrant-detail">Peak load throttled the API; checkout slowed and destabilized.
+                            </p>
+                        </div>
+
+                        <div class="quadrant-card">
+                            <div class="quadrant-header-group">
+                                <span class="sub-label">Experience</span>
+                                <h3 class="quadrant-title">Limited UI Control</h3>
+                            </div>
+                            <p class="quadrant-detail">No brand alignment; key flows were hard to iterate on.</p>
+                        </div>
+
+                        <div class="quadrant-card">
+                            <div class="quadrant-header-group">
+                                <span class="sub-label">Observability</span>
+                                <h3 class="quadrant-title">No Funnel Data</h3>
+                            </div>
+                            <p class="quadrant-detail">Drop-offs were invisible; nothing to iterate against.</p>
+                        </div>
+
+                        <div class="quadrant-card">
+                            <div class="quadrant-header-group">
+                                <span class="sub-label">Business Risk</span>
+                                <h3 class="quadrant-title">No Infrastructure Control</h3>
+                            </div>
+                            <p class="quadrant-detail">The most revenue-critical touchpoint, running on someone else's
+                                rules.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+            5. USER / BUSINESS PROBLEM — PAIRED BLOCK
+            ══════════════════════════════════════ -->
+            <div class="pairing-band">
+                <div class="content-lock">
+                    <section aria-labelledby="sec-pairing" style="padding: 0; border: none;">
+                        <h2 style="display:none;" id="sec-pairing">Assessment Context</h2>
+                        <div class="problem-pairing">
+                            <div class="problem-col">
+                                <span class="sub-label">User Problem</span>
+                                <p class="problem-lead-text">Speed was the whole promise of checkout — and under real
+                                    load, that promise broke. Users hit a flow that slowed down and grew less
+                                    predictable exactly when they were ready to pay, with hesitation creeping in at the
+                                    worst possible moment.</p>
+                            </div>
+                            <div class="problem-col">
+                                <span class="sub-label">Business Problem</span>
+                                <p class="problem-lead-text">For the team, this wasn't just about optimizing a screen —
+                                    it was about earning back control. Speed, visibility, and a checkout built to hold
+                                    up as the business scales, not just survive it.</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════
+            6. DESIGN DIRECTION
+            ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-direction">
+                    <div class="reading-col">
+                        <h2
+                            style="font-size: 24px; font-weight: 700; color: #707070; text-transform: uppercase; margin-bottom: var(--sp-xs); letter-spacing: -0.01em;">
+                            DESIGN DIRECTION</h2>
+                        <h3 class="two-tone-hd" id="sec-direction"
+                            style="font-size: clamp(22px, 3vw, 30px); margin-bottom: var(--sp-xl); margin-top: 0; line-height: 1.2;">
+                            <span class="line-bold">Three Goals, No Room for Drift</span>
+                        </h3>
+
+                        <div class="goals-list">
+                            <div class="goal-item">
+                                <div class="goal-num">01</div>
+                                <div class="goal-text">Minimize drop-off at the single most critical step in the
+                                    purchase journey</div>
+                            </div>
+                            <div class="goal-item">
+                                <div class="goal-num">02</div>
+                                <div class="goal-text">Reduce friction and cognitive load during payment selection</div>
+                            </div>
+                            <div class="goal-item">
+                                <div class="goal-num">03</div>
+                                <div class="goal-text">Shorten the path from selection to confirmation as much as
+                                    possible</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+            7. WHAT ACTUALLY MATTERS AT CHECKOUT
+            ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-matters">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-matters" style="font-size: 30px;">
+                            <span class="line-bold">The Three Things Users Actually Wanted to Know</span>
+                        </h2>
+
+                        <ul style="margin-bottom: var(--sp-lg); padding-left: var(--sp-lg); margin-top: var(--sp-md);">
+                            <li>What's the total?</li>
+                            <li>When will it arrive?</li>
+                               <!-- Reusable Toggle Comparison Component for Address Selection -->
+                        <div class="toggle-comp" id="comp-address-flow">
+                            <div class="toggle-controls-row">
+                                <button class="toggle-pill-btn active" data-target-state="after">After</button>
+                                <button class="toggle-pill-btn" data-target-state="previous">Previous screen</button>
+                            </div>
+
+                            <div class="comparison-layout">
+                                <!-- Mockup Frame -->
+                                <div class="mockup-frame-slot" data-comp-state="after">
+                                    <img src="../../assets/images/address-flow-after.png" style="width:100%;" />
+                                </div>
+                                <div class="mockup-frame-slot hidden" data-comp-state="previous">
+                                    <img src="../../assets/images/address-flow-before.png" style="width:100%;" />
+                                </div>
+
+                                <!-- Annotations for "After" State -->
+                                <div class="side-annotation pos-left solution" data-comp-state="after"
+                                    style="top: 20%; --conn-width: 150px;">
+                                    <p>Every address renders as its own <strong>compact, scannable card</strong> — read
+                                        in a glance, not studied.</p>
+                                </div>
+                                <div class="side-annotation pos-right solution" data-comp-state="after"
+                                    style="top: 40%; --conn-width: 150px;">
+                                    <p>Selecting an address <strong>updates the estimated delivery date
+                                            immediately</strong> — the consequence of that choice is never a mystery.
+                                    </p>
+                                </div>
+                                <div class="side-annotation pos-right solution" data-comp-state="after"
+                                    style="top: 80%; --conn-width: 150px;">
+                                    <p>Until an address is confirmed, the <strong>payment section stays visibly
+                                             muted</strong> — the same rule that governs the rest of the flow: nothing
+                                        moves forward on an unconfirmed step.</p>
+                                </div>
+
+                                <!-- Annotations for "Before/Previous" State -->
+                                <div class="side-annotation pos-left problem" data-comp-state="previous"
+                                    style="top: 55%; --conn-width: 150px;">
+                                    <p><strong>Delivery dates stay hidden</strong> until the next screen, or the orders
+                                        page after purchase — too late to matter at the moment someone's deciding.</p>
+                                </div>
+                                <div class="side-annotation pos-right problem" data-comp-state="previous"
+                                    style="top: 15%; --conn-width: 150px;">
+                                    <p>The address sits in <strong>plain text</strong>, no different from anything else
+                                        on the page — easy to miss, easier to ignore.</p>
+
+                            </div>
+                        </div>
+
+                        <h2 class="two-tone-hd"
+                            style="margin-top: 48px; border-top: 1px solid var(--color-hairline); padding-top: 32px;">
+                            <span class="line-bold">When There's No Address on File</span>
+                        </h2>
+                        <ul style="margin-bottom: var(--sp-lg); padding-left: var(--sp-lg);">
+                            <li>Most addresses arrive automatically — pulled from Shiprocket right after login</li>
+                            <li>Occasionally, none exist yet</li>
+                            <li>When that happens, we ask for one before moving forward</li>
+                            <li>The payment CTA stays <strong>locked</strong> until a valid address is in place</li>
+                        </ul>
+                        <div class="mockup-frame-slot" style="margin: 0 auto 24px auto;">
+                            <img src="../../assets/images/adding-new-address.png" alt="No Address on File"
+                                style="width:100%;" />
+                        </div>
+
+                        <h2 class="two-tone-hd" style="margin-top: 48px;">
+                            <span class="line-bold">Letting the Map Do the Typing</span>
+                        </h2>
+                        <ul style="margin-bottom: var(--sp-lg); padding-left: var(--sp-lg);">
+                            <li>Manual address entry was replaced with a map-first flow</li>
+                            <li>Search a location, drop a pin, the form fills itself in</li>
+                            <li>Less typing for the user, more precision for delivery</li>
+                        </ul>
+
+                        <div
+                            style="display:flex; justify-content:center; gap: var(--sp-lg); margin: var(--sp-xl) auto var(--sp-sm) auto; flex-wrap: wrap;">
+                            <div class="mockup-frame-slot">
+                                <img src="../../assets/images/map-1.png" alt="Map Search" style="width:100%;" />
+                            </div>
+                            <div class="mockup-frame-slot">
+                                <img src="../../assets/images/map-2.png" alt="Map Pin Drop" style="width:100%;" />
+                            </div>
+                        </div>
+
+                        <h2 class="two-tone-hd" style="margin-top: 48px;">
+                            <span class="line-bold">Making Sure the Pin Means It</span>
+                        </h2>
+                        <p style="margin-bottom: var(--sp-sm);">A map makes address entry faster — but it also opens two
+                            ways for a location to be wrong without anyone noticing. Both needed a safety net before
+                            checkout could trust them.</p>
+                    </div>
+
+                    <!-- Safeguard Columns Row -->
+                    <div class="wide-col">
+                        <div class="safeguards-row">
+
+                            <!-- Safeguard 1 -->
+                            <div class="safeguard-col">
+                                <h3 class="safeguard-title">Safeguard 1 — Location Mismatch</h3>
+                                <p class="safeguard-desc" style="margin-bottom: var(--sp-sm);">Move the pin away from the address that was actually searched, and the flow catches it — nudging the user to re-align before they can continue.</p>
+
+                                <!-- Mock Nudge Alert -->
+                                <div style="margin-bottom: var(--sp-md); text-align: center;">
+                                    <span class="highlight-warn">⚠️ "This pin's a little off — drag it to match your searched address before continuing."</span>
+                                </div>
+
+                                <img src="../../assets/images/location-mismatch.png" alt="Location Mismatch"
+                                    style="width: 240px; height: auto; display: block; margin: 0 auto; border-radius: var(--radius-sm);" />
+                             </div>
+
+                             <!-- Safeguard 2 -->
+                             <div class="safeguard-col">
+                                 <h3 class="safeguard-title">Safeguard 2 — Location Unserviceable</h3>
+                                 <p class="safeguard-desc" style="margin-bottom: var(--sp-sm);">Land somewhere outside the delivery zone, and the flow says so directly, then locks the CTA until the address is fixed.</p>
+
+                                 <!-- Mock Nudge Alert -->
+                                 <div style="margin-bottom: var(--sp-md); text-align: center;">
+                                     <span class="highlight-error">🚫 "We don't deliver here yet — try a different address to continue."</span>
+                                 </div>
+
+                                <img src="../../assets/images/location-unserviceable.png" alt="Location Unserviceable"
+                                    style="width: 240px; height: auto; display: block; margin: 0 auto; border-radius: var(--radius-sm);" />
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+            9. PAYMENT SELECTION — HORIZONTAL CAROUSEL
+            ══════════════════════════════════════ -->
+            <div class="content-lock">
+                <section class="cs-section" aria-labelledby="sec-payment">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-payment">
+                            <span class="line-bold">2. Payment Selection</span>
+                        </h2>
+                        <p style="margin-bottom: var(--sp-sm);">Here's the version that shipped, and what led to it.</p>
+                    </div>
+
+                    <!-- 4-state Toggle Comparison Component for Payment Selection -->
+                    <div class="wide-col">
+                        <div class="toggle-comp" id="comp-payment-flow">
+                            <div class="toggle-controls-row">
+                                <button class="toggle-pill-btn active" data-target-state="final">Final Design</button>
+                                <button class="toggle-pill-btn" data-target-state="v3">Version 3</button>
+                                <button class="toggle-pill-btn" data-target-state="v2">Version 2</button>
+                                <button class="toggle-pill-btn" data-target-state="v1">Version 1</button>
+                            </div>
+
+                            <div class="comparison-layout">
+                                <!-- Mockup Frame Final -->
+                                <div class="mockup-frame-slot" data-comp-state="final">
+                                    <img src="../../assets/images/final-v.png" style="width:100%;" />
+                                </div>
+                                <!-- Mockup Frame V3 -->
+                                <div class="mockup-frame-slot hidden" data-comp-state="v3">
+                                    <img src="../../assets/images/v3.png" style="width:100%;" />
+                                </div>
+                                <!-- Mockup Frame V2 -->
+                                <div class="mockup-frame-slot hidden" data-comp-state="v2">
+                                    <img src="../../assets/images/v2.png" style="width:100%;" />
+                                </div>
+                                <!-- Mockup Frame V1 -->
+                                <div class="mockup-frame-slot hidden" data-comp-state="v1">
+                                    <img src="../../assets/images/v1.png" style="width:100%;" />
+                                </div>
+
+                                <!-- Annotations for Final -->
+                                <div class="side-annotation pos-right solution" data-comp-state="final"
+                                    style="top: 15%; --conn-width: 150px;">
+                                    <p><strong>Store credit and gift cards surface first</strong> — so the amount
+                                        someone's actually paying is settled before they even choose how to pay it.</p>
+                                </div>
+                                <div class="side-annotation pos-left solution" data-comp-state="final"
+                                    style="top: 40%; --conn-width: 150px;">
+                                    <p>Every payment method lives in <strong>one flat list</strong> — no toggle to set
+                                        first, no category to expand into. Where V3 fragmented the flow and V2 cluttered
+                                        it, this removes the extra decision entirely.</p>
+                                </div>
+                                <div class="side-annotation pos-right solution" data-comp-state="final"
+                                    style="top: 85%; --conn-width: 150px;">
+                                    <p>Selecting a method and paying happen in <strong>one continuous glance down the
+                                             screen</strong> — nothing to jump back and forth between.</p>
+                                </div>
+
+                                <!-- Annotations for V3 -->
+                                <div class="side-annotation pos-left intent hidden" data-comp-state="v3"
+                                    style="top: 20%; --conn-width: 150px;">
+                                    <p>The idea: ask <strong>payment intent</strong> before showing payment options —
+                                        Pay Now or Pay on Delivery, decided upfront.</p>
+                                </div>
+                                <div class="side-annotation pos-right limitation hidden" data-comp-state="v3"
+                                    style="top: 55%; --conn-width: 150px;">
+                                    <p>It clarified the decision technically — but it <strong>added a step instead of
+                                             removing one</strong>. Set the toggle, then jump to a second area to
+                                        actually pick a method. Clarity at the cost of friction — the toggle and the payment options never felt
+                                        like the same interaction.</p>
+                                </div>
+
+                                <!-- Annotations for V2 -->
+                                <div class="side-annotation pos-left intent hidden" data-comp-state="v2"
+                                    style="top: 20%; --conn-width: 150px;">
+                                    <p>The goal was to cut decision time by <strong>surfacing the most common option
+                                             first</strong> — a single recommended method, pushed to the top.</p>
+                                </div>
+                                <div class="side-annotation pos-right limitation hidden" data-comp-state="v2"
+                                    style="top: 50%; --conn-width: 150px;">
+                                    <p>Then the data disagreed: <strong>41% of users pay with COD, 21% with
+                                             PhonePe</strong> — the option being recommended wasn't the option people
+                                        actually chose. A recommendation nobody asked for, sitting above <strong>three more
+                                             layers</strong> — categories, then providers — added weight instead of
+                                        removing it.</p>
+                                </div>
+
+                                <!-- Annotations for V1 -->
+                                <div class="side-annotation pos-left intent hidden" data-comp-state="v1"
+                                    style="top: 20%; --conn-width: 150px;">
+                                    <p>The first move was the safest one: <strong>tighten the layout, group what already
+                                             existed</strong>, keep the pattern familiar.</p>
+                                </div>
+                                <div class="side-annotation pos-right limitation hidden" data-comp-state="v1"
+                                    style="top: 50%; --conn-width: 150px;">
+                                    <p>It read cleaner. But the <strong>underlying hierarchy never got
+                                             questioned</strong> — same defaults, same order, just less visual noise
+                                        around them. A polish pass, not a redesign.</p>
+                                </div>
+                            </div>
+                        </div>
+                </section>
+            </div>
+
+            <!-- ══════════════════════════════════════
+            10. RESULTS
+            ══════════════════════════════════════ -->
+            <div class="content-lock bg-strip">
+                <section class="cs-section" aria-labelledby="sec-results">
+                    <div class="reading-col">
+                        <h2 class="two-tone-hd" id="sec-results">
+                            <span class="line-bold">What Two Weeks Actually Bought Us</span>
+                        </h2>
+                        <p style="margin-bottom: var(--sp-lg);">Here's what changed once it shipped:</p>
+                    </div>
+
+                    <div class="reading-col">
+                        <div class="results-grid-equal">
+                            <div class="secondary-stat-block hero-stat">
+                                <div class="sec-stat-num">+2.68% increase</div>
+                                <p class="sec-stat-desc">— in checkout conversion.</p>
+                            </div>
+                            <div class="secondary-stat-block hero-stat">
+                                <div class="sec-stat-num">25.7% faster</div>
+                                <p class="sec-stat-desc">— checkout completion; average time to convert dropped to
+                                    roughly 2 minutes.</p>
+                            </div>
+                            <div class="secondary-stat-block">
+                                <div class="sec-stat-num">94% address completion success</div>
+                                <p class="sec-stat-desc">— among users who followed the normal address flow, 94%
+                                    successfully saved their address and continued checkout.</p>
+                            </div>
+                            <div class="secondary-stat-block">
+                                <div class="sec-stat-num">55.7% recovery after drop-offs</div>
+                                <p class="sec-stat-desc">— even when users backed out of the map step, 55.7% returned
+                                    and completed the address form, meaning the new interface caused only temporary
+                                    hesitation, not a blocker.</p>
+                            </div>
+                        </div>
+
+                        <p
+                            style="margin-top: 52px; font-size: 19.5px; font-weight: 300; line-height: 1.45; color: var(--color-muted); letter-spacing: -0.015em;">
+                            Two weeks, a platform migration, and a checkout that finally answers to us instead of
+                            Shopify.
+                        </p>
+                    </div>
+                </section>
+            </div>
+
+        </main>
+
+        <!-- ── Footer ── -->
+        <footer class="cs-footer" id="page-footer">
+            <div class="content-lock">
+                <a href="../hdfc-commercial-cards/index.html" class="footer-project-card">
+                    <div class="footer-project-image-wrap">
+                        <img src="../../assets/images/hdfc-hero-2.jpeg" alt="HDFC Commercial Cards" style="width: 100%; height: 100%; object-fit: cover;" />
+                    </div>
+                    <div class="footer-project-content">
+                        <span class="footer-project-next-tag">Up Next</span>
+                        <h3 class="footer-project-title">Rebuilding Commercial Cards</h3>
+                        <p class="footer-project-subhead" style="font-size: 13.5px; font-weight: 400; color: rgba(255,255,255,0.7); margin-bottom: 6px;">Around the one gap every bank missed: 24/7 support.</p>
+                        <p class="footer-project-desc">Every competitor had more features. None of them had support that worked at midnight.</p>
+                    </div>
+                    <div class="footer-project-arrow">
+                        ↗
+                    </div>
+                </a>
+                <p style="color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 16px;">© 2026 Amit Dezin</p>
+                <a href="../../index.html#work">← Back to all work</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ── Toggle Comparison Client-Side JS ── -->
+    <script>
+        (function () {
+            document.querySelectorAll('.toggle-comp').forEach(comp => {
+                const pills = comp.querySelectorAll('.toggle-pill-btn');
+                const items = comp.querySelectorAll('[data-comp-state]');
+
+                pills.forEach(pill => {
+                    pill.addEventListener('click', () => {
+                        const targetState = pill.getAttribute('data-target-state');
+
+                        // Mark active pill
+                        pills.forEach(p => p.classList.remove('active'));
+                        pill.classList.add('active');
+
+                        // Toggle visibility of images & annotations
+                        items.forEach(item => {
+                            if (item.getAttribute('data-comp-state') === targetState) {
+                                item.classList.remove('hidden');
+                            } else {
+                                item.classList.add('hidden');
+                            }
+                        });
+                    });
+                });
+            });
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Amit — Product & UX Designer</title>
+  <meta name="description"
+    content="Amit Desai's background, design philosophy, and scientific roots.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'><rect width='32' height='32' rx='8' fill='%230a0a0a'/><text x='16' y='22' text-anchor='middle' font-family='system-ui' font-size='16' font-weight='600' fill='white'>AD</text></svg>">
+
+  <!-- CSS Styles -->
+  <link rel="stylesheet" href="../assets/css/style.css">
+
+  <!-- CDN Scripts for Animation (GSAP, ScrollTrigger, Lenis) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js" defer></script>
+</head>
+
+<body>
+
+  <!-- Static Page-Length Edge Grid (Two vertical hairlines bounding content column) -->
+  <div class="edge-grid" aria-hidden="true">
+    <div class="grid-line left"></div>
+    <div class="grid-line right"></div>
+  </div>
+
+  <!-- 1. Header / Nav -->
+  <nav class="nav-bar" id="main-nav" aria-label="Main Navigation">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-avatar-block" aria-label="Back to home">
+        <span class="nav-name">AD</span>
+      </a>
+
+      <!-- Desktop & Tablet Navigation Links -->
+      <div class="nav-links">
+        <div class="nav-link-wrap">
+          <a href="../index.html#work" class="nav-roll-link" data-text="Work">Work</a>
+        </div>
+        <div class="nav-link-wrap">
+          <a href="#" class="nav-roll-link active" data-text="About">About</a>
+        </div>
+        <div class="nav-link-wrap">
+          <a href="../index.html#contact" class="nav-roll-link" data-text="Contact">Contact</a>
+        </div>
+        <div class="nav-link-wrap">
+          <a href="../assets/docs/resume.pdf" target="_blank" rel="noopener" class="nav-roll-link" data-text="Resume">Resume</a>
+        </div>
+      </div>
+
+      <!-- Mobile Hamburger Toggle Button (outside nav — avoids stacking context trap) -->
+    </div>
+  </nav>
+
+  <button class="mobile-menu-btn" id="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-nav-overlay" aria-label="Toggle navigation menu">
+    <span class="hamburger-bar"></span>
+    <span class="hamburger-bar"></span>
+    <span class="hamburger-bar"></span>
+  </button>
+
+
+  <!-- Mobile Navigation Fullscreen Overlay Drawer -->
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Mobile Navigation Menu">
+    <div class="mobile-nav-content">
+      <a href="../index.html#work" class="mobile-nav-link">Work</a>
+      <a href="#" class="mobile-nav-link">About</a>
+      <a href="../index.html#contact" class="mobile-nav-link">Contact</a>
+      <a href="../assets/docs/resume.pdf" target="_blank" rel="noopener" class="mobile-nav-link">Resume</a>
+    </div>
+  </div>
+
+  <main>
+    <!-- 2. Hero Section (Center-Aligned, 4px/8px spaced gaps) -->
+    <section class="hero-tile" id="hero">
+      <div class="hero-inner">
+        <!-- Two-Tone Headline (Center-aligned layout) -->
+        <h1 class="two-tone-hd hero-headline" id="hero-animated-headline">
+          <span class="line line-1">
+            <span class="word font-regular color-muted">Hi,</span>
+            <span class="word font-regular color-muted">I'm</span>
+            <span class="word font-regular color-muted">Amit.</span>
+          </span>
+          <span class="line line-2">
+            <span class="word font-regular color-muted">I</span>
+            <span class="word font-regular color-muted">blend</span>
+            <span class="word font-regular color-muted">my</span>
+            <span class="word font-regular color-muted">science</span>
+            <span class="word font-bold color-dark">roots</span>
+            <span class="word font-bold color-dark">with</span>
+            <span class="word font-bold color-dark">product</span>
+            <span class="word font-bold color-dark">design</span>
+            <span class="word font-bold color-dark">to</span>
+            <span class="word font-bold color-dark">make</span>
+          </span>
+          <span class="line line-3">
+            <span class="word font-bold color-dark">interfaces</span>
+            <span class="word font-bold color-dark">that</span>
+            <span class="word font-bold color-dark">just…</span>
+            <span class="word font-bold color-dark">make</span>
+            <span class="word font-bold color-dark">sense.</span>
+          </span>
+        </h1>
+
+
+        <!-- CTA Action -->
+        <div class="cta-row" data-animate="hero-fade">
+          <a href="../index.html#work" class="btn-primary btn-roll-link" id="view-work-cta" data-text="View Work">View Work</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Story Section (Pinned Scroll-Reveal Composition) -->
+    <section class="story-section" id="story" aria-label="Amit's background story">
+      <div class="story-pin-wrap" id="story-pin-wrap">
+
+        <!-- Left zone — Paragraph 1 -->
+        <div class="story-zone story-zone--left">
+          <p class="story-para" id="story-p1">Before I knew what a wireframe was, I already had two obsessions that shouldn’t have belonged together: <strong class="story-em">taking things apart</strong> to understand them, and putting color on paper until something looked <em class="story-it">right</em>. One was <strong class="story-em">science</strong>. The other was <strong class="story-em">painting</strong>. Nobody told me they’d end up being the same skill.</p>
+        </div>
+
+        <!-- Center — Illustration (stays fixed while pin scrolls) -->
+        <div class="story-illustration-wrap" aria-hidden="true">
+          <img class="story-illustration"
+               src="../assets/images/me.jpeg"
+               alt=""
+               width="560" height="640"
+               loading="eager"
+               draggable="false">
+        </div>
+
+        <!-- Right zone — Paragraph 2 -->
+        <div class="story-zone story-zone--right">
+          <p class="story-para" id="story-p2">Product design didn’t feel like a career change when I found it — it felt like the room where both of those obsessions had been waiting for me the whole time. Observation from one. Composition from the other. <strong class="story-em">Design</strong> just gave them a shared job.</p>
+        </div>
+
+        <!-- Bottom zone — Paragraph 3 (hidden until Phase 3) -->
+        <div class="story-zone story-zone--bottom" id="story-bottom-zone">
+          <p class="story-para" id="story-p3">I’ve since spent my time building AI-native, shipping real interfaces, and getting genuinely obsessed with the difference between a screen that <em class="story-it">works</em> and one that <em class="story-it">belongs</em>. During internships at <strong class="story-em">HDFC Bank</strong> and <strong class="story-em">Virgio</strong>, that obsession got tested against the real thing — a commercial cards portal redesigned around the one gap every competitor missed, and a checkout flow rebuilt off Shopify that never looked back.</p>
+          <p class="story-para story-para--coda" id="story-p3b">If you’ve ever pulled something apart just to see how it worked — <strong class="story-em">we’ll get along.</strong></p>
+        </div>
+
+      </div><!-- /.story-pin-wrap -->
+    </section><!-- /#story -->
+
+
+    <!-- 4. Footer -->
+    <footer class="footer-tile" id="contact">
+      <div class="grid-container">
+        <h2 class="two-tone-hd section-title color-inverted">
+          <span class="font-regular color-muted-inverted">Lets create</span><br>
+          <span class="font-bold color-light">incredible work together.</span>
+        </h2>
+
+        <div class="footer-contact-row">
+          <div class="contact-element">
+            <span class="contact-label">Email</span>
+            <div class="email-wrapper" style="display: inline-flex; align-items: center; gap: 8px;">
+              <a href="mailto:itsdesaiamit@gmail.com" class="contact-value-link">itsdesaiamit@gmail.com</a>
+              <button class="copy-email-btn" aria-label="Copy email address" title="Copy email address" style="background: none; border: none; cursor: pointer; padding: 4px; display: inline-flex; align-items: center;">
+                <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </button>
+            </div>
+          </div>
+          <div class="contact-element socials">
+            <span class="contact-label">Socials</span>
+            <div class="social-links-wrapper">
+              <a href="https://www.instagram.com/ui.amitt?igsh=bGVjMGVrbmtnZ2di" target="_blank" rel="noopener" class="control-social-link">Instagram</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-metadata-row">
+          <span class="metadata-location">Based in India</span>
+          <span class="metadata-copyright">© 2026 Amit Dezin</span>
+        </div>
+
+        <div class="giant-exit-wordmark-wrap">
+          <span class="giant-exit-wordmark" id="liquid-wordmark">Amit Dez<span class="wordmark-in"><span
+                class="char-i">i</span><span class="char-n">n</span></span></span>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <div class="bottom-blur-strip" id="blur-strip" aria-hidden="true"></div>
+
+  <svg class="svg-filters" style="position: absolute; width: 0; height: 0; pointer-events: none;"
+    xmlns="http://www.w3.org/2000/svg">
+    <filter id="displacementFilter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.0" numOctaves="2" result="noise" id="turbulence-node" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G"
+        id="displacement-map-node" />
+    </filter>
+  </svg>
+
+  <script src="../assets/js/script.js" defer></script>
+  <script src="../assets/js/about-story.js" defer></script>
+</body>
+
+</html>
