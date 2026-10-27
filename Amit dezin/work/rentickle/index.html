@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rentickle — Checkout Experience Redesign · Case Study · Amit Dezin</title>
+  <meta name="description" content="Rentickle mobile checkout redesign: How behavioural data and user research led to clearer rental costs, a 42% reduction in checkout duration, and a 12% lift in completion.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'><rect width='32' height='32' rx='8' fill='%230a0a0a'/><text x='16' y='22' text-anchor='middle' font-family='system-ui' font-size='16' font-weight='600' fill='white'>AD</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ══ DESIGN SYSTEM TOKENS (Main Portfolio Grayscale System) ════════ */
+    :root {
+      --color-primary: #0a0a0a;
+      --color-ink: #0a0a0a;
+      --color-ink-secondary: #4a4a4a;
+      --color-muted: #6e6e73;
+      --color-hairline: rgba(0, 0, 0, 0.08);
+      --color-hairline-solid: #e5e5ea;
+      --color-canvas: #fbfbfb;
+      --color-canvas-card: #ffffff;
+      --color-canvas-subtle: #f5f5f7;
+      --color-white: #ffffff;
+      --color-accent-subtle: rgba(0, 0, 0, 0.04);
+      --sp-xxs: 4px;
+      --sp-xs: 8px;
+      --sp-sm: 12px;
+      --sp-md: 16px;
+      --sp-lg: 24px;
+      --sp-xl: 32px;
+      --sp-xxl: 48px;
+      --sp-section: 64px;
+      --radius-pill: 9999px;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --font-body: -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue", sans-serif;
+      --page-margin: 48px;
+      --nav-height: 52px;
+    }
+
+    @media (max-width: 1024px) { :root { --page-margin: 38px; } }
+    @media (max-width: 600px)  { :root { --page-margin: 20px; } }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+      color: var(--color-ink);
+      background-color: var(--color-white);
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: clamp(15.5px, 0.2vw + 14.5px, 16.5px);
+      font-weight: 400;
+      line-height: 1.68;
+      letter-spacing: -0.01em;
+      color: #2c2c2e;
+      background: var(--color-white);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    /* Edge alignment hairlines (desktop only) */
+    .edge-grid { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .grid-line { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(0,0,0,0.045); }
+    .grid-line.left  { left: var(--page-margin); }
+    .grid-line.right { right: var(--page-margin); }
+    @media (max-width: 680px) { .edge-grid { display: none; } }
+
+    /* Top Sticky Navigation Bar */
+    .nav-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1005;
+      height: var(--nav-height); padding: 0 var(--page-margin);
+      display: flex; align-items: center;
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      background: rgba(255, 255, 255, 0.85);
+      border-bottom: 1px solid var(--color-hairline);
+    }
+    .nav-inner {
+      width: 100%; max-width: 1120px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 15px; font-weight: 700; letter-spacing: -0.5px;
+      color: var(--color-ink); text-decoration: none;
+      display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px;
+    }
+    .nav-back {
+      font-size: 13.5px; font-weight: 400; color: var(--color-muted);
+      text-decoration: none; display: flex; align-items: center;
+      gap: 6px; transition: color 0.2s ease; min-height: 44px; padding: 0 4px;
+    }
+    .nav-back:hover { color: var(--color-ink); }
+
+    /* Page Layout */
+    .page-wrapper {
+      padding-top: var(--nav-height);
+      position: relative;
+      z-index: 1;
+    }
+
+    .cs-layout {
+      display: grid;
+      grid-template-columns: 230px minmax(0, 840px);
+      gap: 0 60px;
+      align-items: start;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 var(--page-margin);
+    }
+
+    @media (max-width: 1060px) {
+      .cs-layout { grid-template-columns: minmax(0, 1fr); gap: 0; }
+      .cs-sidebar { display: none; }
+    }
+
+    /* ══ SIDEBAR NAVIGATION (Minimalist Editorial Grayscale System) ═══ */
+    .cs-sidebar {
+      position: sticky;
+      top: 72px;
+      max-height: calc(100vh - 84px);
+      overflow-y: auto;
+      padding: var(--sp-xl) 0 var(--sp-xxl);
+      scrollbar-width: none;
+    }
+    .cs-sidebar::-webkit-scrollbar { display: none; }
+
+    .sidebar-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12.5px; color: var(--color-muted); text-decoration: none;
+      margin-bottom: var(--sp-lg); transition: color 0.15s ease;
+    }
+    .sidebar-back:hover { color: var(--color-ink); }
+
+    .toc-title {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--color-muted);
+      margin-bottom: 14px; display: block;
+    }
+
+    .toc-nav {
+      list-style: none; display: flex; flex-direction: column; gap: 3px;
+    }
+    .toc-item { display: flex; flex-direction: column; }
+
+    /* Editorial link style: clean typography, soft hover, distinct active state */
+    .toc-link {
+      display: block;
+      font-size: 13.5px;
+      font-weight: 400;
+      color: #6e6e73;
+      text-decoration: none;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      transition: color 0.18s ease, background-color 0.18s ease;
+      line-height: 1.45;
+      letter-spacing: -0.01em;
+    }
+    .toc-link:hover {
+      color: var(--color-ink);
+      background-color: rgba(0, 0, 0, 0.025);
+    }
+    .toc-link.active {
+      color: var(--color-ink);
+      font-weight: 600;
+      background-color: var(--color-accent-subtle);
+    }
+
+    /* ══ MAIN ARTICLE COLUMN ════════════════════════════════════════════ */
+    .cs-article {
+      min-width: 0;
+      padding-bottom: var(--sp-section);
+    }
+
+    /* Section Structure & Scroll Offset */
+    .cs-section {
+      padding: 56px 0;
+      border-bottom: 1px solid var(--color-hairline);
+      scroll-margin-top: 68px;
+    }
+    .cs-section:last-of-type { border-bottom: none; }
+
+    .cs-sub-section {
+      padding: 36px 0 24px;
+      scroll-margin-top: 72px;
+    }
+    .cs-sub-section:not(:last-child) {
+      border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
+      margin-bottom: 24px;
+    }
+
+    /* ══ TYPOGRAPHY SCALE & VISUAL HIERARCHY ═════════════════════════════ */
+    .eyebrow {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 10px;
+    }
+    .section-number {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 8px;
+      display: inline-block;
+    }
+
+    /* Primary Title */
+    .cs-title {
+      font-size: clamp(32px, 3.8vw, 44px);
+      font-weight: 700;
+      line-height: 1.12;
+      letter-spacing: -0.03em;
+      color: var(--color-ink);
+      margin-bottom: 8px;
+    }
+
+    /* Supporting Subtitle: small, elegant, distinct hierarchy */
+    .cs-subtitle {
+      font-size: clamp(18px, 1.5vw + 10px, 22px);
+      font-weight: 400;
+      line-height: 1.45;
+      letter-spacing: -0.015em;
+      color: var(--color-muted);
+      margin-bottom: var(--sp-xl);
+    }
+
+    /* Standfirst & Body Text */
+    .cs-standfirst {
+      font-size: clamp(16px, 0.3vw + 14px, 17.5px);
+      font-weight: 400;
+      line-height: 1.65;
+      color: #2c2c2e;
+      letter-spacing: -0.01em;
+      margin-bottom: var(--sp-lg);
+    }
+
+    .section-heading {
+      font-size: clamp(22px, 2.4vw, 28px);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.025em;
+      color: var(--color-ink);
+      margin-bottom: var(--sp-md);
+    }
+
+    .sub-heading {
+      font-size: clamp(16px, 1.4vw + 10px, 18px);
+      font-weight: 600;
+      line-height: 1.35;
+      letter-spacing: -0.015em;
+      color: var(--color-ink);
+      margin: var(--sp-lg) 0 var(--sp-xs);
+    }
+
+    .intro-paragraph {
+      font-size: clamp(16px, 0.3vw + 14px, 17px);
+      line-height: 1.65;
+      color: #2c2c2e;
+      margin-bottom: var(--sp-lg);
+    }
+
+    p { margin-bottom: var(--sp-md); }
+    p:last-child { margin-bottom: 0; }
+
+    /* ══ EDITORIAL ASSET FRAMES ══════════════════════════════════════════ */
+    .cs-image-frame {
+      margin: var(--sp-md) 0 var(--sp-xs);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--color-hairline-solid);
+      background: var(--color-canvas-subtle);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    }
+    .cs-image-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: calc(var(--radius-md) - 1px);
+    }
+    .cs-image-caption {
+      font-size: 13px;
+      color: var(--color-muted);
+      font-style: italic;
+      text-align: center;
+      margin: 10px 0 var(--sp-lg);
+      padding: 0 var(--sp-sm);
+      line-height: 1.5;
+    }
+
+    /* Overview Section Portrait Device Frame */
+    .overview-hero-frame {
+      max-width: 440px;
+      margin: var(--sp-xl) auto var(--sp-xs);
+      background: var(--color-canvas-subtle);
+      border: 1px solid var(--color-hairline-solid);
+      border-radius: var(--radius-md);
+      padding: 20px 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    }
+    .overview-hero-frame img {
+      max-height: 440px;
+      width: auto;
+      max-width: 100%;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+      border-radius: var(--radius-sm);
+      filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.12));
+    }
+
+    /* ══ COMPONENTS & EDITORIAL MODULES ═════════════════════════════════ */
+
+    /* Project Metadata Strip (Strictly 4 Columns with Balanced Proportions) */
+    .meta-strip {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr 1.3fr 2.3fr;
+      gap: 20px;
+      padding: 22px 0;
+      margin: var(--sp-lg) 0 var(--sp-xl);
+      border-top: 1px solid var(--color-hairline-solid);
+      border-bottom: 1px solid var(--color-hairline-solid);
+      align-items: start;
+    }
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative;
+    }
+    .meta-item:not(:last-child)::after {
+      content: ""; position: absolute; top: 2px; bottom: 2px; right: -10px;
+      width: 1px; background: var(--color-hairline-solid);
+    }
+    .meta-label {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--color-muted);
+    }
+    .meta-val {
+      font-size: 14px; font-weight: 500; color: var(--color-ink);
+      line-height: 1.45;
+    }
+    @media (max-width: 900px) {
+      .meta-strip { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+      .meta-item:not(:last-child)::after { display: none; }
+    }
+    @media (max-width: 500px) {
+      .meta-strip { grid-template-columns: 1fr; gap: 14px; padding: 18px 0; }
+      .meta-item { padding-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.06); }
+      .meta-item:last-child { border-bottom: none; }
+    }
+
+    /* Baseline Metric Cards Grid (Standard 3-col) */
+    .metric-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 16px; margin: var(--sp-md) 0 var(--sp-lg);
+    }
+    @media (max-width: 760px) {
+      .metric-grid { grid-template-columns: 1fr; gap: 12px; }
+    }
+    .metric-card {
+      border: 1px solid var(--color-hairline-solid);
+      border-radius: var(--radius-md);
+      padding: 24px 20px;
+      background: var(--color-white);
+      display: flex; flex-direction: column; gap: 4px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .metric-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+    }
+    .metric-card-label {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--color-muted);
+      margin-bottom: 4px;
+    }
+    .metric-card-val {
+      font-size: clamp(26px, 2.8vw, 34px);
+      font-weight: 700; letter-spacing: -0.03em;
+      color: var(--color-ink); line-height: 1.1;
+      margin-bottom: 4px;
+    }
+    .metric-card-desc {
+      font-size: 13px; color: var(--color-muted); line-height: 1.45;
+    }
+
+    /* ══ BENTO GRID (Impact Section Redesign) ═══════════════════════════ */
+    .bento-impact {
+      display: flex; flex-direction: column;
+      gap: 16px; margin: var(--sp-lg) 0;
+    }
+    .bento-hero-card {
+      border: 1px solid var(--color-hairline-solid);
+      border-radius: var(--radius-lg);
+      padding: 34px 32px 30px;
+      background: var(--color-canvas);
+      display: flex; flex-direction: column;
+      gap: 12px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .bento-hero-card:hover, .bento-sub-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+    }
+    .bento-hero-header {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .bento-tag {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--color-muted);
+    }
+    .bento-timeline-pill {
+      font-size: 12.5px; font-weight: 600; color: var(--color-ink);
+      background: rgba(0, 0, 0, 0.05); padding: 4px 12px;
+      border-radius: var(--radius-pill); letter-spacing: -0.01em;
+    }
+    .bento-hero-val {
+      font-size: clamp(40px, 4.6vw, 54px);
+      font-weight: 700; letter-spacing: -0.04em;
+      color: var(--color-ink); line-height: 1;
+      margin: 4px 0 2px;
+    }
+    .bento-hero-desc {
+      font-size: 15px; color: var(--color-ink-secondary);
+      line-height: 1.55; max-width: 620px;
+    }
+    .bento-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 680px) {
+      .bento-row { grid-template-columns: 1fr; }
+      .bento-hero-card { padding: 24px 20px; }
+    }
+    .bento-sub-card {
+      border: 1px solid var(--color-hairline-solid);
+      border-radius: var(--radius-md);
+      padding: 26px 24px;
+      background: var(--color-white);
+      display: flex; flex-direction: column;
+      gap: 6px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .bento-sub-val {
+      font-size: clamp(30px, 3.2vw, 38px);
+      font-weight: 700; letter-spacing: -0.03em;
+      color: var(--color-ink); line-height: 1.1;
+      margin: 4px 0 2px;
+    }
+    .bento-sub-desc {
+      font-size: 13.5px; color: var(--color-muted);
+      line-height: 1.45;
+    }
+
+    /* ══ BALANCED CARDS (Zero 1-Sided Strokes) ══════════════════════════ */
+    /* How Might We (HMW) block */
+    .hmw-card {
+      border: 1px solid var(--color-hairline-solid);
+      background: var(--color-canvas);
+      border-radius: var(--radius-md);
+      padding: 28px 32px;
+      margin: var(--sp-xl) 0;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .hmw-label {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--color-muted);
+    }
+    .hmw-text {
+      font-size: clamp(17px, 1.4vw + 12px, 20px);
+      font-weight: 500; line-height: 1.5;
+      color: var(--color-ink); margin: 0;
+    }
+
+    /* Structured Callout Block */
+    .callout {
+      background: var(--color-canvas);
+      border: 1px solid var(--color-hairline-solid);
+      border-radius: var(--radius-md);
+      padding: 24px 28px;
+      margin: var(--sp-lg) 0;
+    }
+    .callout-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--color-muted);
+      margin-bottom: 10px; display: block;
+    }
+
+    /* Flow Badge Container */
+    .flow-badge-seq {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+      margin: 14px 0 20px;
+    }
+    .flow-step-pill {
+      display: inline-flex; align-items: center;
+      padding: 6px 14px; font-size: 13px; font-weight: 500;
+      background: #ffffff; border: 1px solid var(--color-hairline-solid);
+      border-radius: var(--radius-pill); color: var(--color-ink);
+    }
+    .flow-step-pill.highlight {
+      background: var(--color-ink); color: #ffffff; border-color: var(--color-ink);
+    }
+    .flow-arrow {
+      font-size: 13px; color: var(--color-muted);
+    }
+
+    /* User Interview Quote Cards (Clean 4-sided borders) */
+    .quote-grid {
+      display: flex; flex-direction: column; gap: 20px;
+      margin: var(--sp-xl) 0;
+    }
+    .quote-card {
+      border: 1px solid var(--color-hairline-solid);
+      border-radius: var(--radius-md);
+      padding: 24px 28px;
+      background: var(--color-white);
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .quote-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--color-muted);
+    }
+    .quote-body {
+      font-size: clamp(16px, 1.2vw + 12px, 18px);
+      font-weight: 400; line-height: 1.55;
+      color: var(--color-ink); font-style: italic;
+    }
+    .quote-interp {
+      background: var(--color-canvas-subtle);
+      border: 1px solid var(--color-hairline-solid);
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      font-size: 13.5px; line-height: 1.55; color: var(--color-ink-secondary);
+    }
+    .quote-interp strong {
+      font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--color-muted); display: block; margin-bottom: 3px;
+    }
+
+    /* Research Synthesis Blocks */
+    .synthesis-stack {
+      display: flex; flex-direction: column; gap: 24px;
+      margin: var(--sp-xl) 0;
+    }
+    .synthesis-card {
+      border: 1px solid var(--color-hairline-solid);
+      border-radius: var(--radius-md);
+      padding: 28px;
+      background: var(--color-white);
+      display: grid; grid-template-columns: 44px 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 600px) {
+      .synthesis-card { grid-template-columns: 1fr; gap: 12px; padding: 20px; }
+    }
+    .synthesis-badge {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--color-canvas); border: 1px solid var(--color-hairline-solid);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700; color: var(--color-ink);
+      flex-shrink: 0;
+    }
+    .synthesis-content {
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .synthesis-title {
+      font-size: 18px; font-weight: 700; letter-spacing: -0.015em;
+      color: var(--color-ink); line-height: 1.3;
+    }
+    .synthesis-field {
+      font-size: 14.5px; line-height: 1.6; color: #2c2c2e;
+    }
+    .synthesis-field strong {
+      display: block; font-size: 11px; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--color-muted); margin-bottom: 3px;
+    }
+    .synthesis-direction {
+      background: var(--color-canvas); border-radius: var(--radius-sm);
+      border: 1px solid #e5e5ea; padding: 12px 16px;
+      margin-top: 4px;
+    }
+    .synthesis-direction strong {
+      color: #0a0a0a; font-weight: 700;
+    }
+
+    /* ══ DESIGN CHANGES REFINED LAYOUT ══════════════════════════════════ */
+    .change-block {
+      background: var(--color-white);
+      border: 1px solid var(--color-hairline-solid);
+      border-radius: var(--radius-md);
+      padding: 30px;
+      margin: var(--sp-md) 0 var(--sp-lg);
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    @media (max-width: 600px) { .change-block { padding: 20px; } }
+    .change-meta-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    }
+    @media (max-width: 700px) { .change-meta-row { grid-template-columns: 1fr; } }
+    .change-col {
+      display: flex; flex-direction: column; gap: 4px;
+      font-size: 14.5px; line-height: 1.6; color: #2c2c2e;
+    }
+    .change-col strong {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--color-muted); margin-bottom: 2px; display: block;
+    }
+    .change-rationale-box {
+      background: var(--color-canvas);
+      border: 1px solid var(--color-hairline-solid);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--color-ink-secondary);
+    }
+    .change-rationale-box strong {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--color-ink);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* Trade-offs Table */
+    .tradeoffs-container {
+      margin: var(--sp-xl) 0;
+      border: 1px solid var(--color-hairline-solid);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--color-white);
+    }
+    .tradeoffs-table {
+      width: 100%; border-collapse: collapse; font-size: 14.5px;
+    }
+    .tradeoffs-table thead th {
+      text-align: left; padding: 14px 20px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--color-muted);
+      background: var(--color-canvas);
+      border-bottom: 1px solid var(--color-hairline-solid);
+    }
+    .tradeoffs-table tbody tr {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      transition: background 0.15s ease;
+    }
+    .tradeoffs-table tbody tr:last-child { border-bottom: none; }
+    .tradeoffs-table tbody tr:hover { background: #fbfbfd; }
+    .tradeoffs-table td {
+      padding: 18px 20px; vertical-align: top;
+      line-height: 1.55; color: #2c2c2e;
+    }
+    .tradeoffs-table td:first-child { font-weight: 600; color: var(--color-ink); }
+
+    /* Learnings List */
+    .learnings-list {
+      display: flex; flex-direction: column; gap: 16px;
+      margin: var(--sp-lg) 0 var(--sp-xl);
+    }
+    .learning-item {
+      border: 1px solid var(--color-hairline-solid);
+      border-radius: var(--radius-md);
+      padding: 22px 24px;
+      background: var(--color-white);
+      display: grid; grid-template-columns: 32px 1fr;
+      gap: 16px; align-items: start;
+    }
+    .learning-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--color-canvas); border: 1px solid var(--color-hairline-solid);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--color-ink); margin-top: 2px;
+    }
+    .learning-title {
+      font-size: 16px; font-weight: 600; color: var(--color-ink);
+      margin-bottom: 4px;
+    }
+    .learning-desc {
+      font-size: 14.5px; line-height: 1.6; color: #4a4a4a; margin: 0;
+    }
+
+    /* Philosophy Closing Callout */
+    .closing-card {
+      border: 1px solid var(--color-hairline-solid);
+      border-radius: var(--radius-md);
+      background: var(--color-canvas);
+      padding: 32px;
+      margin: var(--sp-xxl) 0 var(--sp-xl);
+      text-align: center;
+    }
+    .closing-quote {
+      font-size: clamp(17px, 1.4vw + 12px, 20px);
+      font-weight: 500; line-height: 1.55;
+      color: var(--color-ink); margin: 0 auto;
+      max-width: 680px;
+    }
+
+    /* Bullet List */
+    .cs-bullet-list {
+      list-style: none; margin: var(--sp-md) 0;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .cs-bullet-list li {
+      position: relative; padding-left: 22px;
+      font-size: clamp(15.5px, 0.2vw + 14.5px, 16.5px);
+      line-height: 1.65; color: #2c2c2e;
+    }
+    .cs-bullet-list li::before {
+      content: "—"; position: absolute; left: 0;
+      color: var(--color-muted);
+    }
+
+    /* Research Steps Sequence */
+    .seq-steps {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 12px; margin: var(--sp-lg) 0 var(--sp-xl);
+    }
+    @media (max-width: 760px) { .seq-steps { grid-template-columns: 1fr; } }
+    .seq-step {
+      border: 1px solid var(--color-hairline-solid); border-radius: var(--radius-sm);
+      padding: 14px 16px; background: #fff; font-size: 13.5px; line-height: 1.4;
+      display: flex; gap: 10px; align-items: baseline;
+    }
+    .seq-num {
+      font-size: 11px; font-weight: 700; color: var(--color-muted);
+      background: var(--color-canvas); border-radius: 4px; padding: 2px 6px;
+      flex-shrink: 0;
+    }
+
+    /* Mobile Contents Floating Trigger */
+    .toc-mobile-btn {
+      display: none; position: fixed; bottom: max(24px, calc(18px + env(safe-area-inset-bottom))); right: 20px; z-index: 1000;
+      padding: 10px 18px; border-radius: var(--radius-pill);
+      border: 1px solid rgba(255,255,255,0.2);
+      background: var(--color-ink); color: #ffffff;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      align-items: center; gap: 8px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.22);
+      transition: transform 0.18s ease;
+    }
+    .toc-mobile-btn:hover { transform: scale(1.04); }
+    @media (max-width: 1060px) { .toc-mobile-btn { display: inline-flex; } }
+
+    /* Mobile Drawer */
+    .drawer-overlay {
+      display: none; position: fixed; inset: 0; z-index: 1010;
+      background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+    .drawer-overlay.active { display: block; }
+
+    .toc-drawer {
+      position: fixed; right: 0; top: 0; bottom: 0; z-index: 1020;
+      width: min(340px, 86vw); background: var(--color-white);
+      padding: 24px 24px 36px;
+      overflow-y: auto; transform: translateX(100%);
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex; flex-direction: column;
+    }
+    .toc-drawer.open { transform: translateX(0); }
+
+    .drawer-top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 16px; border-bottom: 1px solid var(--color-hairline-solid);
+      margin-bottom: 16px;
+    }
+    .drawer-heading {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--color-muted);
+    }
+    .drawer-close {
+      width: 32px; height: 32px; border: none; background: var(--color-canvas);
+      border-radius: 50%; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; color: var(--color-ink);
+    }
+    .drawer-list {
+      list-style: none; display: flex; flex-direction: column; gap: 3px;
+    }
+    .drawer-link {
+      display: block; font-size: 14.5px; color: #6e6e73; text-decoration: none;
+      padding: 8px 12px; border-radius: var(--radius-sm); line-height: 1.4;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .drawer-link:hover {
+      background: var(--color-canvas); color: var(--color-ink);
+    }
+    .drawer-link.active {
+      background: var(--color-accent-subtle); color: var(--color-ink); font-weight: 600;
+    }
+
+    /* Virgio-Style Footer & Project Card */
+    .cs-footer {
+      background: #0a0a0a;
+      color: var(--color-white);
+      padding: var(--sp-xxl) var(--sp-xl);
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      margin-top: 48px;
+    }
+    .cs-footer .content-lock {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .cs-footer a {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s ease;
+    }
+    .cs-footer a:hover {
+      color: var(--color-white);
+    }
+    .footer-project-card {
+      display: flex;
+      align-items: center;
+      background: #111;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-lg);
+      max-width: 680px;
+      margin: 0 auto 48px auto;
+      text-align: left;
+      text-decoration: none !important;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+    .footer-project-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 255, 255, 0.18);
+      background: #181818;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    }
+    .footer-project-image-wrap {
+      width: 145px;
+      height: 105px;
+      flex-shrink: 0;
+      background: #141414;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+    }
+    .footer-project-card:hover .footer-project-image-wrap {
+      transform: scale(1.02);
+    }
+    .footer-project-img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 4px;
+      display: block;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45));
+    }
+    .footer-project-content {
+      padding: 18px 22px;
+      flex-grow: 1;
+      color: var(--color-white);
+    }
+    .footer-project-next-tag {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: rgba(255, 255, 255, 0.45);
+      font-weight: 700;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .footer-project-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      line-height: 1.25;
+      color: var(--color-white);
+    }
+    .footer-project-subhead {
+      font-size: 13px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+    .footer-project-desc {
+      font-size: 13.5px;
+      color: rgba(255, 255, 255, 0.55);
+      line-height: 1.45;
+      margin: 0;
+    }
+    .footer-project-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-right: 22px;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 20px;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
+    }
+    .footer-project-card:hover .footer-project-arrow {
+      transform: translateX(4px);
+      color: var(--color-white);
+    }
+    @media (max-width: 576px) {
+      .footer-project-card {
+        flex-direction: column;
+      }
+      .footer-project-image-wrap {
+        width: 100%;
+        height: 110px;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 12px;
+      }
+      .footer-project-arrow {
+        display: none;
+      }
+    }
+
+    /* Accessibility focus indicators */
+    :focus-visible {
+      outline: 2px solid #0a0a0a;
+      outline-offset: 3px;
+    }
+
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background edge alignment hairlines -->
+  <div class="edge-grid" aria-hidden="true">
+    <div class="grid-line left"></div>
+    <div class="grid-line right"></div>
+  </div>
+
+  <!-- Top Sticky Navigation Bar -->
+  <nav class="nav-bar" aria-label="Main portfolio navigation">
+    <div class="nav-inner">
+      <a href="../../index.html" class="nav-logo">AD</a>
+      <a href="../../index.html#work" class="nav-back">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Back to Work
+      </a>
+    </div>
+  </nav>
+
+  <!-- Page Wrapper -->
+  <div class="page-wrapper">
+    <div class="cs-layout">
+
+      <!-- Left Desktop Sticky Sidebar (Clean Editorial TOC, No Numerical Prefixes) -->
+      <aside class="cs-sidebar" aria-label="Case study sections">
+        <a href="../../index.html" class="sidebar-back">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Back to Work
+        </a>
+        <span class="toc-title">Contents</span>
+        <ul class="toc-nav" id="desktop-toc">
+          <li class="toc-item">
+            <a href="#overview" class="toc-link active" data-target="overview">Overview</a>
+          </li>
+          <li class="toc-item">
+            <a href="#context" class="toc-link" data-target="context">Project Context</a>
+          </li>
+          <li class="toc-item">
+            <a href="#problem" class="toc-link" data-target="problem">Problem Statement &amp; Baseline</a>
+          </li>
+          <li class="toc-item">
+            <a href="#research" class="toc-link" data-target="research">Research &amp; Audit</a>
+          </li>
+          <li class="toc-item">
+            <a href="#interviews" class="toc-link" data-target="interviews">User Interviews</a>
+          </li>
+          <li class="toc-item">
+            <a href="#synthesis" class="toc-link" data-target="synthesis">Research Synthesis</a>
+          </li>
+          <li class="toc-item">
+            <a href="#user-flow" class="toc-link" data-target="user-flow">User Flow</a>
+          </li>
+          <li class="toc-item">
+            <a href="#design-changes" class="toc-link" data-target="design-changes">Design Changes</a>
+          </li>
+          <li class="toc-item">
+            <a href="#tradeoffs" class="toc-link" data-target="tradeoffs">Trade-offs</a>
+          </li>
+          <li class="toc-item">
+            <a href="#impact" class="toc-link" data-target="impact">Impact</a>
+          </li>
+          <li class="toc-item">
+            <a href="#learnings" class="toc-link" data-target="learnings">Learnings</a>
+          </li>
+        </ul>
+      </aside>
+
+      <!-- Main Article Column (~840px) -->
+      <article class="cs-article">
+
+        <!-- Overview -->
+        <header class="cs-section" id="overview">
+          <span class="eyebrow">Case Study &middot; Rental Commerce</span>
+          <h1 class="cs-title">Rentickle &mdash; Checkout Experience Redesign</h1>
+          <p class="cs-subtitle">Making rental costs clearer and checkout faster</p>
+
+          <p class="cs-standfirst">
+            Rentickle is a furniture and appliance rental platform that lets customers rent products through monthly payments instead of making large upfront purchases.
+          </p>
+
+          <p>
+            During my two-month project, I worked on simplifying the mobile checkout experience through competitive research, UX audits, behavioural data, customer interviews, and product data. The goal was to make the full rental commitment easier to understand and remove unnecessary friction from checkout.
+          </p>
+
+          <!-- Project Metadata Strip -->
+          <div class="meta-strip">
+            <div class="meta-item">
+              <span class="meta-label">Role</span>
+              <span class="meta-val">Product Designer</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Timeline</span>
+              <span class="meta-val">2 Months</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Tools</span>
+              <span class="meta-val">Figma, Clarity, GPT</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Team</span>
+              <span class="meta-val">Freelance project &mdash; Me (Product Designer), 1 Senior Designer, 1 Developer</span>
+            </div>
+          </div>
+
+          <!-- Hero Image Area (Live High-Res Mockup) -->
+          <div class="overview-hero-frame">
+            <img src="../../assets/images/RC1%20Mian%20outer%20card.png" alt="Rentickle mobile checkout redesign overview mockup" width="450" height="831" loading="eager">
+          </div>
+          <p class="cs-image-caption">Consolidated Rentickle mobile checkout: streamlined single-page interface with clear rental cost breakdown.</p>
+        </header>
+
+        <!-- 01 — Project Context -->
+        <section class="cs-section" id="context">
+          <span class="section-number">01 &mdash; Project Context</span>
+          <h2 class="section-heading">Why rental checkout needs more explanation than a typical purchase</h2>
+          
+          <p class="intro-paragraph">
+            Rentickle&rsquo;s rental model requires customers to understand recurring monthly rent, advance payments, refundable security deposits, additional charges, and identity verification.
+          </p>
+
+          <p>
+            Unlike a simple one-time purchase, the customer needs to understand both the payment due today and the ongoing rental commitment. The checkout must make those details clear before asking the customer to commit.
+          </p>
+
+          <div class="callout">
+            <span class="callout-title">The Rental Model &amp; Operational Gating</span>
+            <p>
+              In conventional e-commerce, the final number is the complete transaction. In rental commerce, checkout initiates a multi-month financial and legal commitment. If customers cannot instantly decouple <strong>what is charged today</strong> from <strong>what will be billed on the 1st of every month</strong>, apprehension stops the order.
+            </p>
+          </div>
+        </section>
+
+        <!-- 02 — Problem Statement & Baseline -->
+        <section class="cs-section" id="problem">
+          <span class="section-number">02 &mdash; Problem Statement</span>
+          <h2 class="section-heading">Checkout was taking too long, and too few users were completing it</h2>
+
+          <p class="intro-paragraph">
+            The data revealed severe attrition: average checkout duration stretched past six minutes, and fewer than one in ten users who entered checkout completed their booking.
+          </p>
+
+          <!-- Baseline Checkout Performance (Moved from Overview as Requested) -->
+          <div style="margin-top: var(--sp-lg); margin-bottom: 4px;">
+            <h3 class="sub-heading" style="margin: 0 0 4px 0;">Baseline checkout performance</h3>
+            <p style="font-size: 14.5px; color: var(--color-muted); margin: 0 0 var(--sp-md) 0;">
+              Prior to the redesign, performance metrics highlighted major barriers to completion:
+            </p>
+          </div>
+
+          <div class="metric-grid">
+            <div class="metric-card">
+              <span class="metric-card-label">Checkout Duration</span>
+              <span class="metric-card-val">6m 22s</span>
+              <span class="metric-card-desc">Average session time before redesign</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-card-label">Completion Rate</span>
+              <span class="metric-card-val">9.8%</span>
+              <span class="metric-card-desc">Orders placed versus checkout entries</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-card-label">KYC Drop-off</span>
+              <span class="metric-card-val">High</span>
+              <span class="metric-card-desc">Abandonment at identity-verification step</span>
+            </div>
+          </div>
+
+          <h3 class="sub-heading">Three main friction areas</h3>
+          <ul class="cs-bullet-list">
+            <li>
+              <strong>Pricing anxiety:</strong> Customers struggled to reconcile monthly rent with the full amount due at checkout.
+            </li>
+            <li>
+              <strong>Form fatigue:</strong> Repeated address entry and an unnecessary billing-address step increased input effort.
+            </li>
+            <li>
+              <strong>Visual and interaction friction:</strong> Redundant layouts, unclear protection-plan states, and limited feedback made checkout harder to navigate.
+            </li>
+          </ul>
+
+          <div class="hmw-card">
+            <span class="hmw-label">Design Challenge</span>
+            <p class="hmw-text">
+              &ldquo;How might we make rental checkout easier to understand and complete without removing the information and verification customers need?&rdquo;
+            </p>
+          </div>
+        </section>
+
+        <!-- 03 — Research & Audit -->
+        <section class="cs-section" id="research">
+          <span class="section-number">03 &mdash; Research &amp; Audit</span>
+          <h2 class="section-heading">We used behavioural data to find where checkout lost clarity</h2>
+
+          <p class="intro-paragraph">
+            &ldquo;We started with behavioural data in Microsoft Clarity. Heatmaps and scroll maps gave us directional evidence about user interactions and declining attention. We used these observations alongside customer interviews and product data to identify which parts of checkout needed to change.&rdquo;
+          </p>
+
+          <h3 class="sub-heading">Investigation Sequence</h3>
+          <div class="seq-steps">
+            <div class="seq-step"><span class="seq-num">01</span><span>Competitive research and UX audit</span></div>
+            <div class="seq-step"><span class="seq-num">02</span><span>Clarity heatmaps</span></div>
+            <div class="seq-step"><span class="seq-num">03</span><span>Clarity scroll maps</span></div>
+            <div class="seq-step"><span class="seq-num">04</span><span>KYC and form-friction investigation</span></div>
+            <div class="seq-step"><span class="seq-num">05</span><span>Customer interviews</span></div>
+            <div class="seq-step"><span class="seq-num">06</span><span>Research synthesis and prioritisation</span></div>
+          </div>
+
+          <!-- Friction Audit 01 — Heatmap -->
+          <div class="cs-sub-section" id="audit-heatmap">
+            <span class="eyebrow">Friction Audit 01</span>
+            <h3 class="sub-heading" style="margin-top:0;">Heatmap</h3>
+            <p>
+              &ldquo;The heatmap highlighted interactions around rental tenure, pricing, coupons, and the protection plan. These patterns helped identify where users needed clearer information and feedback.&rdquo;
+            </p>
+
+            <div class="cs-image-frame">
+              <img src="../../assets/images/FR AUDIT 1.jpg" alt="Microsoft Clarity Heatmap audit showing interaction density around tenure, pricing, and coupon codes" width="2048" height="1504" loading="lazy">
+            </div>
+            <p class="cs-image-caption">Friction Audit 01 — Heatmap: Interaction clusters concentrated on tenure options, monthly rent, and coupon accordions.</p>
+          </div>
+
+          <!-- Friction Audit 02 — Scroll Map -->
+          <div class="cs-sub-section" id="audit-scrollmap">
+            <span class="eyebrow">Friction Audit 02</span>
+            <h3 class="sub-heading" style="margin-top:0;">Scroll Map</h3>
+            <p>
+              &ldquo;The scroll map revealed that many customers did not reach the detailed pricing breakdown before abandoning checkout. It also highlighted declining attention around the lower KYC-related content.&rdquo;
+            </p>
+
+            <div class="cs-image-frame">
+              <img src="../../assets/images/FR AUDIT 2.jpg" alt="Microsoft Clarity Scroll map audit showing steep drop in scroll depth" width="2048" height="1503" loading="lazy">
+            </div>
+            <p class="cs-image-caption">Friction Audit 02 — Scroll Map: Steep attention drop-off before users reached detailed pricing breakdowns and lower KYC sections.</p>
+          </div>
+
+          <!-- Friction Audit 03 — KYC & Form Friction (Placeholder removed as requested) -->
+          <div class="cs-sub-section" id="audit-kyc">
+            <span class="eyebrow">Friction Audit 03</span>
+            <h3 class="sub-heading" style="margin-top:0;">KYC &amp; Form Friction</h3>
+            <p>
+              &ldquo;The KYC document-upload field had the highest rage-click concentration, while billing-address and protection-plan interactions revealed additional friction. These findings helped direct the redesign toward clearer guidance and fewer unnecessary steps.&rdquo;
+            </p>
+
+            <ul class="cs-bullet-list">
+              <li>
+                <strong>Rage clicks on KYC upload:</strong> The KYC page had the highest rage-click concentration on the document-upload field, suggesting confusion about accepted formats or file-size limits.
+              </li>
+              <li>
+                <strong>Widespread billing form abandonment:</strong> The billing-address form was visited and abandoned by a large segment of sessions, despite only approximately 2% of orders requiring a distinct billing address.
+              </li>
+              <li>
+                <strong>Dead clicks on protection plan:</strong> Dead clicks clustered around the protection plan, suggesting uncertainty about whether it was preselected, included, or optional.
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- 04 — User Interviews -->
+        <section class="cs-section" id="interviews">
+          <span class="section-number">04 &mdash; User Interviews</span>
+          <h2 class="section-heading">We spoke to customers to understand why they hesitated</h2>
+
+          <p class="intro-paragraph">
+            &ldquo;Behavioural data showed where users interacted with checkout, but it could not explain why they hesitated. We spoke to six recent customers and four customers who had abandoned checkout to better understand their experiences.&rdquo;
+          </p>
+
+          <div class="callout" style="padding: 16px 22px; margin-bottom: var(--sp-lg);">
+            <span class="callout-title" style="margin-bottom:4px;">Research Scope</span>
+            <p style="font-size:14px; margin:0;">
+              <strong>10 participants in total:</strong> 6 recent customers who completed checkout + 4 customers who abandoned during the checkout journey.
+            </p>
+          </div>
+
+          <div class="quote-grid">
+            <!-- Quote 01 -->
+            <div class="quote-card">
+              <span class="quote-eyebrow">Quote 01 &mdash; Pricing Uncertainty</span>
+              <p class="quote-body">
+                &ldquo;I didn&rsquo;t know I had to pay a deposit on top of the monthly rent. I thought checkout would show me the total.&rdquo;
+              </p>
+              <div class="quote-interp">
+                <strong>Interpretation</strong>
+                The customer expected the full financial commitment to be visible before reaching the payment decision.
+              </div>
+            </div>
+
+            <!-- Quote 02 -->
+            <div class="quote-card">
+              <span class="quote-eyebrow">Quote 02 &mdash; Repeated Address Entry</span>
+              <p class="quote-body">
+                &ldquo;It kept asking me for the same address again. I wasn&rsquo;t sure if it saved my earlier input.&rdquo;
+              </p>
+              <div class="quote-interp">
+                <strong>Interpretation</strong>
+                Repeated input and uncertainty about whether information had been retained created unnecessary effort.
+              </div>
+            </div>
+
+            <!-- Quote 03 -->
+            <div class="quote-card">
+              <span class="quote-eyebrow">Quote 03 &mdash; Protection-Plan Confusion</span>
+              <p class="quote-body">
+                &ldquo;I wasn&rsquo;t sure what the protection plan covered. I selected it, deselected it, then left.&rdquo;
+              </p>
+              <div class="quote-interp">
+                <strong>Interpretation</strong>
+                The selection state and value of the protection plan were not sufficiently clear to this participant.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 05 — Research Synthesis -->
+        <section class="cs-section" id="synthesis">
+          <span class="section-number">05 &mdash; Research Synthesis</span>
+          <h2 class="section-heading">Three friction patterns shaped the redesign</h2>
+
+          <p class="intro-paragraph">
+            Connecting behavioural telemetry to qualitative feedback clarified three systemic UX blockers. Each finding directly determined a specific architectural direction.
+          </p>
+
+          <div class="synthesis-stack">
+            <!-- Pattern A -->
+            <div class="synthesis-card">
+              <div class="synthesis-badge">A</div>
+              <div class="synthesis-content">
+                <h3 class="synthesis-title">Opaque pricing structure</h3>
+                <div class="synthesis-field">
+                  <strong>What we found</strong>
+                  Customers could not easily reconcile monthly rent with the amount due at checkout. The deposit, first month&rsquo;s rent, and setup fee appeared at different stages instead of together.
+                </div>
+                <div class="synthesis-direction">
+                  <strong>Design direction</strong>
+                  Show Pay Today and Your Monthly Pay together from the beginning of checkout. Make refundable deposits, advance rent, charges, and discounts easy to understand.
+                </div>
+              </div>
+            </div>
+
+            <!-- Pattern B -->
+            <div class="synthesis-card">
+              <div class="synthesis-badge">B</div>
+              <div class="synthesis-content">
+                <h3 class="synthesis-title">Multi-page form fragmentation</h3>
+                <div class="synthesis-field">
+                  <strong>What we found</strong>
+                  Address, billing address, KYC, and payment were spread across four separate pages without a persistent progress indicator or summary. Going back cleared subsequent inputs on some paths.
+                </div>
+                <div class="synthesis-direction">
+                  <strong>Design direction</strong>
+                  Consolidate the primary checkout into one scrollable interface where appropriate, use inline validation, and avoid destructive back-navigation.
+                </div>
+              </div>
+            </div>
+
+            <!-- Pattern C -->
+            <div class="synthesis-card">
+              <div class="synthesis-badge">C</div>
+              <div class="synthesis-content">
+                <h3 class="synthesis-title">Unnecessary cognitive load</h3>
+                <div class="synthesis-field">
+                  <strong>What we found</strong>
+                  The billing-address form appeared for everyone even though approximately 2% of orders required a different billing address. The protection plan appeared mandatory or unclear, and the KYC upload lacked sufficient guidance.
+                </div>
+                <div class="synthesis-direction">
+                  <strong>Design direction</strong>
+                  Default to the shipping address and reveal separate billing options when required. Make the protection-plan selection and value clearer. Add inline KYC file-format and size guidance.
+                  <div style="margin-top:6px; font-size:12.5px; color:#6e6e73;">
+                    <em>Note: The persistent protection-plan reminder did not ship in V1 and is documented under Trade-offs, not as an implemented feature.</em>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 06 — User Flow -->
+        <section class="cs-section" id="user-flow">
+          <span class="section-number">06 &mdash; User Flow</span>
+          <h2 class="section-heading">Simplifying the main checkout path</h2>
+
+          <p class="intro-paragraph">
+            &ldquo;We mapped the user journey to identify repeated steps and secondary actions that interrupted the main path. The redesign simplified the default journey while preserving essential login, address-selection, and payment requirements.&rdquo;
+          </p>
+
+          <h3 class="sub-heading">Observed Original Flow (6 steps)</h3>
+          <div class="flow-badge-seq">
+            <span class="flow-step-pill">Cart</span>
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-step-pill">Login</span>
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-step-pill">Checkout</span>
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-step-pill">Address</span>
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-step-pill">Agree to Terms</span>
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-step-pill">Proceed to Pay</span>
+          </div>
+
+          <h3 class="sub-heading">Redesigned Main Path (3 consolidated steps)</h3>
+          <div class="flow-badge-seq">
+            <span class="flow-step-pill highlight">Checkout</span>
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-step-pill highlight">Confirm Address</span>
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-step-pill highlight">Proceed to Payment</span>
+          </div>
+
+          <h3 class="sub-heading">Complete Flow Logic &amp; Conditional Branches</h3>
+          <ul class="cs-bullet-list">
+            <li><strong>Logged-out users:</strong> Directed through login/signup authentication and seamlessly returned to their checkout state without losing form data.</li>
+            <li><strong>New users:</strong> Prompted to add their delivery address and select it immediately.</li>
+            <li><strong>Returning users:</strong> Saved address selected by default; secondary saved addresses accessible via a lightweight drawer.</li>
+            <li><strong>Coupon application:</strong> Optional inline accordion &mdash; keeps discounts accessible without interrupting the primary payment path.</li>
+            <li><strong>Secondary &ldquo;Update Items&rdquo; branch:</strong> Updating cart items, tenures, and quantities remains available as a secondary action without leaving the checkout page context.</li>
+          </ul>
+
+          <!-- Live User Flow Image -->
+          <div class="cs-image-frame">
+            <img src="../../assets/images/USER FLOW R.jpg" alt="Rentickle checkout user flow diagram comparing original 6-step flow with redesigned 3-step path" width="2048" height="822" loading="lazy">
+          </div>
+          <p class="cs-image-caption">User flow architecture: Original 6-step flow compared against the simplified 3-step primary path and conditional branches.</p>
+        </section>
+
+        <!-- 07 — Design Changes -->
+        <section class="cs-section" id="design-changes">
+          <span class="section-number">07 &mdash; Design Changes</span>
+          <h2 class="section-heading">Design Changes</h2>
+
+          <p class="intro-paragraph">
+            Guided by behavioural drop-off data and customer interview feedback, three targeted design changes restructured the checkout experience to deliver immediate clarity and eliminate unnecessary input steps.
+          </p>
+
+          <!-- 07.1 Transparent Rental Pricing -->
+          <div class="cs-sub-section" id="pricing">
+            <h3 class="sub-heading" style="margin-top:0;">Making Rental Pricing Transparent</h3>
+
+            <div class="change-block">
+              <div class="change-meta-row">
+                <div class="change-col">
+                  <strong>Problem</strong>
+                  Customers needed to understand the financial commitment but could not easily distinguish the amount due now from the recurring monthly payment.
+                </div>
+                <div class="change-col">
+                  <strong>Evidence</strong>
+                  Behavioural data highlighted activity around pricing and coupons, while interviews revealed uncertainty about refundable deposits.
+                </div>
+              </div>
+
+              <div class="change-col">
+                <strong>Design Decision</strong>
+                Create a unified pricing breakdown that distinguishes Pay Today from Your Monthly Pay and clearly identifies the refundable deposit and applicable charges.
+              </div>
+
+              <div class="change-col">
+                <strong>The intended design includes:</strong>
+                <ul class="cs-bullet-list" style="margin-top:6px;">
+                  <li>Upfront payment and recurring monthly rent</li>
+                  <li>Clearly labelled refundable deposit</li>
+                  <li>Relevant fees, taxes, advance rent, and discounts</li>
+                  <li>Protection-plan information where applicable</li>
+                </ul>
+              </div>
+
+              <!-- Live Image for 07.1 -->
+              <div class="cs-image-frame">
+                <img src="../../assets/images/RDESIGN 1.jpg" alt="Transparent rental pricing design: two-horizon breakdown distinguishing initial outlay from recurring monthly rent" width="2048" height="1359" loading="lazy">
+              </div>
+              <p class="cs-image-caption">Transparent rental pricing: Two-horizon cost architecture distinguishing initial outlay from recurring rent.</p>
+
+              <div class="change-rationale-box">
+                <strong>Design Rationale</strong>
+                Distinguishing the initial payment due today from ongoing monthly rent directly resolved the primary quote friction (&ldquo;I didn&rsquo;t know I had to pay a deposit on top of the monthly rent&rdquo;). Customers evaluate rental commitments on affordability; providing unambiguous line-items for deposits, taxes, and advance rent restores certainty before payment commitment.
+              </div>
+            </div>
+          </div>
+
+          <!-- 07.2 Single-Page Checkout -->
+          <div class="cs-sub-section" id="single-page">
+            <h3 class="sub-heading" style="margin-top:0;">Consolidating Checkout into One Page</h3>
+
+            <div class="change-block">
+              <div class="change-meta-row">
+                <div class="change-col">
+                  <strong>Problem</strong>
+                  The original checkout required users to navigate separate screens and repeat or revisit information.
+                </div>
+                <div class="change-col">
+                  <strong>Evidence</strong>
+                  The audit identified low visibility of detailed pricing, repeated input, and friction associated with separate address and billing steps.
+                </div>
+              </div>
+
+              <div class="change-col">
+                <strong>Design Decision</strong>
+                Consolidate the main checkout into a focused, scrollable interface. Simplify address presentation, group order details, keep coupon access available, and make the primary payment action easier to find.
+              </div>
+
+              <div class="callout" style="padding: 14px 18px; margin: 4px 0;">
+                <span class="callout-title" style="margin-bottom:4px;">Flow Comparison</span>
+                <div style="font-size:13px; line-height:1.5;">
+                  <div><strong>Original flow:</strong> Cart &rarr; Login &rarr; Checkout &rarr; Address &rarr; Agree to Terms &rarr; Proceed to Pay</div>
+                  <div style="margin-top:4px;"><strong>Redesigned flow:</strong> Checkout &rarr; Confirm Address &rarr; Proceed to Payment</div>
+                  <div style="font-size:12px; color:var(--color-muted); margin-top:4px;">Login/signup, address selection, and payment requirements remain available as needed.</div>
+                </div>
+              </div>
+
+              <!-- Live Image for 07.2 (Before & After Comparison) -->
+              <div class="cs-image-frame">
+                <img src="../../assets/images/RDESIN 2.jpg" alt="Before and after comparison of Rentickle checkout flow: fragmented 6-step journey vs streamlined single-page experience" width="1520" height="870" loading="lazy">
+              </div>
+              <p class="cs-image-caption">Before &amp; After: Transition from a fragmented multi-page flow to a single unified scrollable checkout view.</p>
+
+              <div class="change-rationale-box">
+                <strong>Design Rationale</strong>
+                Multi-step page reloads destroyed contextual awareness: users lost visibility of their cart and pricing while entering delivery details, triggering hesitation and back-navigation that frequently wiped form state. Consolidating into a single page provides continuous visual reference, allowing users to verify line-items while confirming delivery.
+              </div>
+            </div>
+          </div>
+
+          <!-- 07.3 Billing Address Simplification -->
+          <div class="cs-sub-section" id="billing-address">
+            <h3 class="sub-heading" style="margin-top:0;">Removing the Separate Billing-Address Step</h3>
+
+            <div class="change-block">
+              <div class="change-col">
+                <strong>Evidence</strong>
+                Product data showed that approximately 2% of B2C orders used a billing address different from the shipping address.
+              </div>
+
+              <div class="change-col">
+                <strong>Design Decision</strong>
+                Default to the shipping address and move billing options inside the address-selection drawer. Preserve the ability to select or enter a separate billing address when necessary.
+              </div>
+
+              <!-- Live Image for 07.3 (Address Drawer) -->
+              <div class="cs-image-frame">
+                <img src="../../assets/images/RDESIGN 3.jpg" alt="Rentickle address selection drawer with default shipping address and nested optional billing address" width="2048" height="1505" loading="lazy">
+              </div>
+              <p class="cs-image-caption">Address drawer: Default shipping selection with nested optional billing address input for edge cases.</p>
+
+              <div class="change-rationale-box">
+                <strong>Design Rationale</strong>
+                Forcing 100% of customers through a dedicated billing-address screen to support a 2% operational exception was a major driver of form fatigue and abandonment. Defaulting to shipping eliminates a full interaction hurdle for 98% of users while fully preserving compliance and accounting support for corporate or alternative billing requests via progressive disclosure.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 08 — Trade-offs -->
+        <section class="cs-section" id="tradeoffs">
+          <span class="section-number">08 &mdash; Trade-offs</span>
+          <h2 class="section-heading">Three useful ideas could not ship in V1</h2>
+
+          <p class="intro-paragraph">
+            Good product design requires disciplined scoping. We explicitly prioritized stability and core completion over secondary convenience features during the two-month implementation cycle.
+          </p>
+
+          <div class="tradeoffs-container">
+            <table class="tradeoffs-table">
+              <thead>
+                <tr>
+                  <th scope="col">Concept</th>
+                  <th scope="col">What we wanted</th>
+                  <th scope="col">Why it did not ship</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Coupon states</strong></td>
+                  <td>Automatically show eligible coupons as active and explain why ineligible coupons cannot be used.</td>
+                  <td>Backend conditional logic was not ready for V1.</td>
+                </tr>
+                <tr>
+                  <td><strong>Protection-plan visibility</strong></td>
+                  <td>Keep the protection-plan state clear, especially for returning customers.</td>
+                  <td>Business priorities and timing pushed the persistent reminder out of scope.</td>
+                </tr>
+                <tr>
+                  <td><strong>Preselected address map</strong></td>
+                  <td>Make address selection and delivery-zone information more immediate and visual.</td>
+                  <td>Technical complexity was too high within the available timeline.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 09 — Impact (Bento Grid Redesign) -->
+        <section class="cs-section" id="impact">
+          <span class="section-number">09 &mdash; Impact</span>
+          <h2 class="section-heading">Checkout became faster, with fewer verification drop-offs</h2>
+
+          <p class="intro-paragraph">
+            Measurement post-launch demonstrated notable gains across friction metrics and overall funnel progression:
+          </p>
+
+          <!-- Bento Grid: Top Hero Stat + 2 Equal Columns Below -->
+          <div class="bento-impact">
+            <!-- Top Hero Card (Full Width) -->
+            <div class="bento-hero-card">
+              <div class="bento-hero-header">
+                <span class="bento-tag">Primary Outcome &middot; Checkout Duration</span>
+                <span class="bento-timeline-pill">6m 22s &rarr; 3m 42s</span>
+              </div>
+              <div class="bento-hero-val">42% &darr;</div>
+              <p class="bento-hero-desc">
+                Average checkout time decreased by 2 minutes and 40 seconds across all completed mobile sessions.
+              </p>
+            </div>
+
+            <!-- Bottom Row (Two Equal Columns Dividing the Exact Width) -->
+            <div class="bento-row">
+              <!-- Left Sub-card -->
+              <div class="bento-sub-card">
+                <span class="bento-tag">Drop-off at Verification</span>
+                <div class="bento-sub-val">48% &darr;</div>
+                <div class="bento-sub-desc">Reported reduction in abandonment at the KYC verification stage.</div>
+              </div>
+
+              <!-- Right Sub-card -->
+              <div class="bento-sub-card">
+                <span class="bento-tag">End-to-End Completion</span>
+                <div class="bento-sub-val">+12%</div>
+                <div class="bento-sub-desc">Reported increase in checkout completion.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout" style="margin-top: var(--sp-lg);">
+            <span class="callout-title">Measurement Context</span>
+            <p style="font-size:14px; margin:0; line-height:1.6;">
+              These reported outcomes represent the compound impact of transparent upfront pricing, reduced screen steps, and clear document requirements. The +12% figure is the reported relative uplift in checkout completions. Outcomes are evaluated as a holistic system rather than attributing performance entirely to a single isolated UI tweak.
+            </p>
+          </div>
+        </section>
+
+        <!-- 10 — Learnings -->
+        <section class="cs-section" id="learnings">
+          <span class="section-number">10 &mdash; Learnings</span>
+          <h2 class="section-heading">What I learned from working with real behaviour data</h2>
+
+          <p class="intro-paragraph">
+            Designing within live product telemetry and real constraints reshaped my approach to interaction architecture:
+          </p>
+
+          <div class="learnings-list">
+            <!-- Learning 01 -->
+            <div class="learning-item">
+              <div class="learning-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M2 13.5h12M3 10l3-4 3 2.5 4-5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <h4 class="learning-title">Working with real data</h4>
+                <p class="learning-desc">
+                  This was my first hands-on experience with heatmaps and scroll maps. They changed how I evaluated interfaces by showing where users interacted with the page and where attention declined.
+                </p>
+              </div>
+            </div>
+
+            <!-- Learning 02 -->
+            <div class="learning-item">
+              <div class="learning-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M4 8h8M8 4l-4 4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <h4 class="learning-title">Research that removes</h4>
+                <p class="learning-desc">
+                  Some of the most valuable findings led to removing fields, steps, and decisions rather than adding features. Simplification became a deliberate product decision.
+                </p>
+              </div>
+            </div>
+
+            <!-- Learning 03 -->
+            <div class="learning-item">
+              <div class="learning-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div>
+                <h4 class="learning-title">Understanding limitations earlier</h4>
+                <p class="learning-desc">
+                  Features that did not ship reinforced the importance of understanding business priorities, technical complexity, and backend readiness during scoping.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Closing Philosophy Callout -->
+          <div class="closing-card">
+            <p class="closing-quote">
+              &ldquo;Good checkout design is not about asking customers to move faster through complexity. It is about removing the complexity they should never have had to navigate in the first place.&rdquo;
+            </p>
+          </div>
+        </section>
+
+      </article>
+    </div>
+  </div>
+
+  <!-- Mobile Floating "Contents" Button -->
+  <button type="button" class="toc-mobile-btn" id="mobile-toc-trigger" aria-label="Open table of contents drawer" aria-haspopup="dialog" aria-expanded="false">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M2.5 4h11M2.5 8h11M2.5 12h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+    Contents
+  </button>
+
+  <!-- Mobile Drawer Backdrop Overlay -->
+  <div class="drawer-overlay" id="mobile-drawer-overlay" aria-hidden="true"></div>
+
+  <!-- Mobile Drawer (Dialog - Strictly Clean Sections, No Numerical Prefixes) -->
+  <aside class="toc-drawer" id="mobile-toc-drawer" role="dialog" aria-modal="true" aria-label="Case study table of contents">
+    <div class="drawer-top">
+      <span class="drawer-heading">Table of Contents</span>
+      <button type="button" class="drawer-close" id="mobile-drawer-close" aria-label="Close table of contents">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <ul class="drawer-list" id="drawer-toc-nav">
+      <li><a href="#overview" class="drawer-link active" data-target="overview">Overview</a></li>
+      <li><a href="#context" class="drawer-link" data-target="context">Project Context</a></li>
+      <li><a href="#problem" class="drawer-link" data-target="problem">Problem Statement &amp; Baseline</a></li>
+      <li><a href="#research" class="drawer-link" data-target="research">Research &amp; Audit</a></li>
+      <li><a href="#interviews" class="drawer-link" data-target="interviews">User Interviews</a></li>
+      <li><a href="#synthesis" class="drawer-link" data-target="synthesis">Research Synthesis</a></li>
+      <li><a href="#user-flow" class="drawer-link" data-target="user-flow">User Flow</a></li>
+      <li><a href="#design-changes" class="drawer-link" data-target="design-changes">Design Changes</a></li>
+      <li><a href="#tradeoffs" class="drawer-link" data-target="tradeoffs">Trade-offs</a></li>
+      <li><a href="#impact" class="drawer-link" data-target="impact">Impact</a></li>
+      <li><a href="#learnings" class="drawer-link" data-target="learnings">Learnings</a></li>
+    </ul>
+  </aside>
+
+  <!-- Global Footer -->
+  <footer class="cs-footer" id="page-footer">
+    <div class="content-lock">
+      <a href="/work/hdfc-commercial-cards/index.html" class="footer-project-card" id="footer-next-study">
+        <div class="footer-project-image-wrap">
+          <img src="../../assets/images/dashboard.jpeg" alt="HDFC Commercial Cards" class="footer-project-img" />
+        </div>
+        <div class="footer-project-content">
+          <span class="footer-project-next-tag">Up Next</span>
+          <h3 class="footer-project-title">Rebuilding Commercial Cards</h3>
+          <p class="footer-project-subhead">Around the one gap every bank missed: 24/7 support.</p>
+          <p class="footer-project-desc">Every competitor had more features. None of them had support that worked at midnight.</p>
+        </div>
+        <div class="footer-project-arrow">
+          ↗
+        </div>
+      </a>
+      <p style="color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 16px;">© 2026 Amit Dezin</p>
+      <a href="../../index.html#work">← Back to all work</a>
+    </div>
+  </footer>
+
+  <!-- Vanilla JavaScript: Scroll-Spy & Mobile Drawer Controller -->
+  <script>
+    (function() {
+      // 1. Mobile Drawer Controller
+      const mobileTrigger = document.getElementById('mobile-toc-trigger');
+      const mobileDrawer = document.getElementById('mobile-toc-drawer');
+      const overlay = document.getElementById('mobile-drawer-overlay');
+      const closeBtn = document.getElementById('mobile-drawer-close');
+      const drawerLinks = document.querySelectorAll('.drawer-link');
+
+      function openDrawer() {
+        mobileDrawer.classList.add('open');
+        overlay.classList.add('active');
+        if (mobileTrigger) mobileTrigger.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
+        if (closeBtn) closeBtn.focus();
+      }
+
+      function closeDrawer() {
+        mobileDrawer.classList.remove('open');
+        overlay.classList.remove('active');
+        if (mobileTrigger) mobileTrigger.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      }
+
+      if (mobileTrigger) mobileTrigger.addEventListener('click', openDrawer);
+      if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+      if (overlay) overlay.addEventListener('click', closeDrawer);
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && mobileDrawer.classList.contains('open')) {
+          closeDrawer();
+          if (mobileTrigger) mobileTrigger.focus();
+        }
+      });
+
+      drawerLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          closeDrawer();
+        });
+      });
+
+      // 2. Active Section Scroll-Spy (IntersectionObserver with parent mapping)
+      const desktopLinks = document.querySelectorAll('.toc-link');
+
+      const sectionToParentMap = {
+        'overview': 'overview',
+        'context': 'context',
+        'problem': 'problem',
+        'research': 'research',
+        'audit-heatmap': 'research',
+        'audit-scrollmap': 'research',
+        'audit-kyc': 'research',
+        'interviews': 'interviews',
+        'synthesis': 'synthesis',
+        'user-flow': 'user-flow',
+        'design-changes': 'design-changes',
+        'pricing': 'design-changes',
+        'single-page': 'design-changes',
+        'billing-address': 'design-changes',
+        'tradeoffs': 'tradeoffs',
+        'impact': 'impact',
+        'learnings': 'learnings'
+      };
+
+      const observedElements = [];
+      Object.keys(sectionToParentMap).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) observedElements.push(el);
+      });
+
+      if ('IntersectionObserver' in window && observedElements.length > 0) {
+        const observerOptions = {
+          root: null,
+          rootMargin: '-15% 0px -70% 0px',
+          threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const currentId = entry.target.id;
+              const parentId = sectionToParentMap[currentId] || currentId;
+
+              // Update desktop sidebar
+              desktopLinks.forEach(link => {
+                const target = link.getAttribute('data-target') || link.getAttribute('href').replace('#', '');
+                if (target === parentId) {
+                  link.classList.add('active');
+                } else {
+                  link.classList.remove('active');
+                }
+              });
+
+              // Update mobile drawer links
+              drawerLinks.forEach(link => {
+                const target = link.getAttribute('data-target') || link.getAttribute('href').replace('#', '');
+                if (target === parentId) {
+                  link.classList.add('active');
+                } else {
+                  link.classList.remove('active');
+                }
+              });
+            }
+          });
+        }, observerOptions);
+
+        observedElements.forEach(el => observer.observe(el));
+      }
+
+      // 3. Reliable Footer Navigation Controller (handles servers without trailing slashes)
+      const footerCard = document.getElementById('footer-next-study');
+      if (footerCard) {
+        footerCard.addEventListener('click', function(e) {
+          if (window.location.protocol.startsWith('http')) {
+            e.preventDefault();
+            const path = window.location.pathname;
+            const rootPrefix = path.includes('/work/') ? path.substring(0, path.indexOf('/work/')) : '';
+            window.location.href = rootPrefix + '/work/hdfc-commercial-cards/index.html';
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

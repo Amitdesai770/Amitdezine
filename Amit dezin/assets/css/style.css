@@ -662,15 +662,17 @@ body {
     top: 0;
     left: 0;
     /* Right side intentionally left for mockup bleed */
-    width: 58%;
+    width: 60%;
     /* padding: top clears chip (var(--sp-lg) chip top + ~12px chip height + 12px gap = 48px)
        left/right/bottom all use var(--sp-lg) = 24px for consistent four-side alignment */
-    padding: calc(var(--sp-lg) + 24px) var(--sp-lg) var(--sp-xl) var(--sp-lg);
+    padding: calc(var(--sp-lg) + 20px) var(--sp-lg) var(--sp-lg) var(--sp-lg);
     z-index: 6;
+    pointer-events: none;
+    /* Reduced dark overlay: lighter gradient allows mockup details to shine through */
     background: linear-gradient(
         135deg,
-        rgba(8, 8, 8, 0.82) 0%,
-        rgba(8, 8, 8, 0.55) 60%,
+        rgba(10, 10, 10, 0.52) 0%,
+        rgba(10, 10, 10, 0.28) 55%,
         transparent 100%
     );
 }
@@ -683,17 +685,19 @@ body {
     line-height: 1.18;
     letter-spacing: -0.03em;
     margin: 0;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
 }
 
 .card-subhead {
     font-size: var(--fs-caption);
     font-weight: 400;
-    color: rgba(255, 255, 255, 0.48);
+    color: rgba(255, 255, 255, 0.65);
     margin-top: var(--sp-xs);
     line-height: 1.45;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
-/* Stats row (Virgio only) */
+/* Stats row (Virgio & Rentickle) */
 .card-stats {
     display: flex;
     gap: var(--sp-lg);
@@ -714,14 +718,16 @@ body {
     color: #ffffff;
     letter-spacing: -0.03em;
     line-height: 1;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
 }
 
 .stat-lbl {
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.42);
+    color: rgba(255, 255, 255, 0.55);
     font-weight: 400;
     letter-spacing: 0;
     line-height: 1.3;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 /* Mockup image — bleeds right and bottom */
@@ -733,7 +739,34 @@ body {
     z-index: 3;
 }
 
-/* HDFC: landscape dashboard — wide, bleeds across right portion */
+/* 1. Virgio: tall phone mockup group */
+.card--virgio .card-mockup-wrap {
+    width: 58%;
+    right: -5%;
+    bottom: -8%;
+}
+
+/* 2. Rentickle Payment & Protection: portrait mobile interface (made smaller to eliminate cropping) */
+.card--rentickle-payment .card-mockup-wrap {
+    width: 48%;
+    right: -1%;
+    bottom: -6%;
+    top: auto;
+}
+
+/* 3. Rentickle Checkout: portrait mobile interface mockup (scaled to normal compact proportions) */
+.card--rentickle .card-mockup-wrap {
+    width: 35%;
+    right: 4%;
+    bottom: 0%;
+    top: auto;
+}
+
+.card--rentickle .card-teaser {
+    max-width: 55%;
+}
+
+/* 4. HDFC: landscape dashboard — wide, bleeds across right portion */
 .card--hdfc .card-mockup-wrap {
     width: 72%;
     right: -4%;
@@ -741,11 +774,12 @@ body {
     top: auto;
 }
 
-/* Virgio: tall phone mockup group */
-.card--virgio .card-mockup-wrap {
-    width: 60%;
-    right: -6%;
-    bottom: -10%;
+/* 5. HDFC Payment Gateway: landscape UI screenshot (enlarged laptop & phone) */
+.card--hdfc-gateway .card-mockup-wrap {
+    width: 96%;
+    right: -10%;
+    bottom: -2%;
+    top: auto;
 }
 
 .card-mockup-img {
@@ -753,16 +787,22 @@ body {
     height: auto;
     display: block;
     /* Slight desaturation to stay in the grayscale system */
-    filter: grayscale(20%) brightness(0.9);
+    filter: grayscale(18%) brightness(0.92);
     border-radius: var(--r-md) var(--r-md) 0 0;
     /* Hover scale — animates independently via transform */
     transform-origin: center bottom;
     transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Scale mockup 30% on card hover */
+/* Refined hover scale (10% scale for controlled Apple-like depth without overflow) */
 .project-card--redesign:hover .card-mockup-img {
-    transform: scale(1.3);
+    transform: scale(1.10);
+}
+
+/* Rentickle Payment & Protection & Checkout: gentler scale on hover so it never overflows or crops */
+.card--rentickle-payment:hover .card-mockup-img,
+.card--rentickle:hover .card-mockup-img {
+    transform: scale(1.06);
 }
 
 /* Progressive blur + teaser zone — bottom of card */
@@ -771,13 +811,15 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 48px var(--sp-lg) var(--sp-lg);
+    padding: 40px var(--sp-lg) var(--sp-lg);
     z-index: 7;
+    pointer-events: none;
+    /* Reduced dark overlay: softer gradient maintains contrast while keeping art visible */
     background: linear-gradient(
         to bottom,
         transparent 0%,
-        rgba(8, 8, 8, 0.65) 40%,
-        rgba(8, 8, 8, 0.92) 100%
+        rgba(10, 10, 10, 0.38) 35%,
+        rgba(10, 10, 10, 0.74) 100%
     );
 }
 
@@ -785,28 +827,34 @@ body {
 .card-bottom-row {
     display: flex;
     align-items: flex-end;
+    justify-content: space-between;
+    width: 100%;
     gap: var(--sp-md);
+    pointer-events: auto;
 }
 
 .card-teaser {
     flex: 1;
     font-size: var(--fs-caption);
-    color: rgba(255, 255, 255, 0.78); /* WCAG AA on dark gradient */
+    color: rgba(255, 255, 255, 0.85); /* WCAG AA on dark gradient */
     line-height: 1.55;
     margin-bottom: 0;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .card-cta {
+    margin-left: auto;
     flex-shrink: 0;
     font-size: 13px;
     font-weight: 500;
     color: #ffffff;
-    opacity: 0.82;
+    opacity: 0.85;
     display: inline-flex;
     align-items: center;
-    gap: 2px;
+    gap: 3px;
     white-space: nowrap;
     transition: opacity 0.2s ease;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 /* Arrow-only animation — text stays put, arrow launches */
@@ -823,12 +871,25 @@ body {
     transform: translate(3px, -3px);
 }
 
+/* ── Card 5 Centered in Grid ── */
+.card--center {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 100%;
+    max-width: calc(50% - (var(--sp-xl) / 2));
+}
+
 /* ── Card Responsive Adjustments ── */
 /* Tablet (≤1068px) */
 @media (max-width: 1068px) {
-    .card-top { width: 65%; }
-    .card--hdfc .card-mockup-wrap { width: 62%; right: -2%; }
+    .card-top { width: 68%; }
     .card--virgio .card-mockup-wrap { width: 54%; right: -3%; }
+    .card--rentickle-payment .card-mockup-wrap { width: 44%; right: -1%; bottom: -4%; }
+    .card--rentickle .card-mockup-wrap { width: 33%; right: 3%; bottom: 0%; }
+    .card--rentickle .card-teaser { max-width: 53%; }
+    .card--hdfc .card-mockup-wrap { width: 66%; right: -2%; }
+    .card--hdfc-gateway .card-mockup-wrap { width: 90%; right: -8%; bottom: -2%; }
+    .card--center { max-width: calc(50% - (var(--sp-xl) / 2)); }
 }
 
 /* Mobile (≤640px) — cards stack full-width */
@@ -837,17 +898,39 @@ body {
         width: 100%;
         padding-right: var(--sp-md);
     }
+    .card--virgio .card-mockup-wrap {
+        width: 65%;
+        right: -3%;
+        bottom: -6%;
+        opacity: 0.85;
+    }
+    .card--rentickle-payment .card-mockup-wrap {
+        width: 52%;
+        right: -2%;
+        bottom: -4%;
+        opacity: 0.85;
+    }
+    .card--rentickle .card-mockup-wrap {
+        width: 42%;
+        right: 1%;
+        bottom: 0%;
+        opacity: 0.85;
+    }
+    .card--rentickle .card-teaser { max-width: 100%; }
     .card--hdfc .card-mockup-wrap {
         width: 78%;
         right: -3%;
         bottom: -3%;
-        opacity: 0.75;
+        opacity: 0.85;
     }
-    .card--virgio .card-mockup-wrap {
-        width: 68%;
-        right: -4%;
-        bottom: -6%;
-        opacity: 0.75;
+    .card--hdfc-gateway .card-mockup-wrap {
+        width: 95%;
+        right: -6%;
+        bottom: -2%;
+        opacity: 0.85;
+    }
+    .card--center {
+        max-width: 100%;
     }
     .card-heading { font-size: var(--fs-lead-airy); }
     .stat-num { font-size: var(--fs-lead-airy); }
