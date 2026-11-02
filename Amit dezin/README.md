@@ -17,8 +17,9 @@ A minimalist, high-craft personal portfolio built for Product & UX Designer **Am
 │   └── index.html                    # About page
 ├── work/
 │   ├── index.html                    # Work overview redirect
-│   ├── hdfc-commercial-cards/        # HDFC Case Study
-│   └── virgio-checkout/              # Virgio Case Study
+│   ├── virgio-checkout/              # Virgio Checkout Case Study
+│   ├── rentickle-payment-protection/ # Rentickle Payment & Protection Case Study
+│   └── rentickle/                    # Rentickle Checkout Case Study
 ├── assets/
 │   ├── css/                          # Stylesheets (style.css, case-study.css)
 │   ├── js/                           # Scripts (script.js, about-story.js)

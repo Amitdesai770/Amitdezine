@@ -766,21 +766,7 @@ body {
     max-width: 55%;
 }
 
-/* 4. HDFC: landscape dashboard — wide, bleeds across right portion */
-.card--hdfc .card-mockup-wrap {
-    width: 72%;
-    right: -4%;
-    bottom: -5%;
-    top: auto;
-}
 
-/* 5. HDFC Payment Gateway: landscape UI screenshot (enlarged laptop & phone) */
-.card--hdfc-gateway .card-mockup-wrap {
-    width: 96%;
-    right: -10%;
-    bottom: -2%;
-    top: auto;
-}
 
 .card-mockup-img {
     width: 100%;
@@ -871,7 +857,7 @@ body {
     transform: translate(3px, -3px);
 }
 
-/* ── Card 5 Centered in Grid ── */
+/* ── Card Centered in Grid ── */
 .card--center {
     grid-column: 1 / -1;
     justify-self: center;
@@ -887,8 +873,6 @@ body {
     .card--rentickle-payment .card-mockup-wrap { width: 44%; right: -1%; bottom: -4%; }
     .card--rentickle .card-mockup-wrap { width: 33%; right: 3%; bottom: 0%; }
     .card--rentickle .card-teaser { max-width: 53%; }
-    .card--hdfc .card-mockup-wrap { width: 66%; right: -2%; }
-    .card--hdfc-gateway .card-mockup-wrap { width: 90%; right: -8%; bottom: -2%; }
     .card--center { max-width: calc(50% - (var(--sp-xl) / 2)); }
 }
 
@@ -917,18 +901,7 @@ body {
         opacity: 0.85;
     }
     .card--rentickle .card-teaser { max-width: 100%; }
-    .card--hdfc .card-mockup-wrap {
-        width: 78%;
-        right: -3%;
-        bottom: -3%;
-        opacity: 0.85;
-    }
-    .card--hdfc-gateway .card-mockup-wrap {
-        width: 95%;
-        right: -6%;
-        bottom: -2%;
-        opacity: 0.85;
-    }
+
     .card--center {
         max-width: 100%;
     }
